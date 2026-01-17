@@ -2428,12 +2428,8 @@ def resolve_template_url(template_url):
            filename = get_github_filename(resolved_url, file_suffix)
             # 如果返回 None，跳过不处理
             if filename is None:
-            print("文件名获取失败，跳过此文件处理")
-            return None  # 或者 continue，取决于你的代码结构
-    
-    # 只有当 filename 不是 None 时才继续执行后续逻辑
-    # ... 原有的处理逻辑 ...
-
+               print("文件名获取失败，跳过此文件处理")
+               return None  # 
             # 替换 {x}<suffix> 为实际文件名
             resolved_url = re.sub(r'\{x\}' + re.escape(file_suffix), filename, resolved_url)
 
