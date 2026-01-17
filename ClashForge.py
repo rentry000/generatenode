@@ -2364,9 +2364,7 @@ def get_github_filename(github_url, file_suffix):
     api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path_part}"
 
     response = requests.get(api_url)
-    if response.status_code != 200:
-        raise Exception(f"GitHub API请求失败: {response.status_code} {response.text}")
-
+    if response.status_code != 200:return None
     files = response.json()
     matching_files = [f['name'] for f in files if f['name'].endswith(file_suffix)]
 
