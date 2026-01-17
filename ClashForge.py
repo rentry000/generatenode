@@ -2425,11 +2425,11 @@ def resolve_template_url(template_url):
         # 提取文件后缀
         file_suffix = extract_file_pattern(resolved_url)
         if file_suffix:
-           filename = get_github_filename(resolved_url, file_suffix)
+            filename = get_github_filename(resolved_url, file_suffix)
             # 如果返回 None，跳过不处理
             if filename is None:
-               print("文件名获取失败，跳过此文件处理")
-               return None  # 
+                print("文件名获取失败，跳过此文件处理")
+                return None  # 
             # 替换 {x}<suffix> 为实际文件名
             resolved_url = re.sub(r'\{x\}' + re.escape(file_suffix), filename, resolved_url)
 
@@ -2438,6 +2438,7 @@ def resolve_template_url(template_url):
         resolved_url = f"{proxy_prefix}{resolved_url}"
 
     return resolved_url
+
 
 
 def start_download_test(proxy_names, speed_limit=0.1):
