@@ -37,7 +37,7 @@ jobs:
         sudo apt install -y bash
         sudo apt install -y python3-pip  # 显式安装 Python3-pip
         pip3 install --upgrade pip  # 升级 pip 到最新版本
-        pip3 install requests PyYAML httpx asyncio psutil HTMLSession
+        pip3 install requests PyYAML httpx asyncio psutil requests_html
 
 
     - name: Run ClashForge.py  # 运行 Python 脚本
