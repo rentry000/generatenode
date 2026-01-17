@@ -42,6 +42,7 @@ jobs:
 
     - name: Run ClashForge.py  # 运行 Python 脚本
       run: python3 ClashForge.py.  # 显式使用 Python3 执行脚本
+      
     - name: submit
       run: |
         git config --global user.name 'github-actions'  # 配置 Git 用户名
