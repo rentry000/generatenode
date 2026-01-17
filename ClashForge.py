@@ -2842,7 +2842,7 @@ if __name__ == '__main__':
 "https://xsg241220.cnxskj.dpdns.org/xs?sub=sub.keaeye.icu&proxyip=ProxyIP.HK.CMLiussss.net",
 "https://xsgg25.xsgsvip.dpdns.org/xsgg?sub=VLESS.fxxk.dedyn.io&proxyip=ProxyIP.JP.CMLiussss.net",
 "https://xs250408.xskj2000.dpdns.org/xs?sub=sub.keaeye.icu&proxyip=ProxyIP.JP.CMLiussss.net",
-"https://xscm250711.xn--eywz0c.dpdns.org/xs?sub=owo.o00o.ooo&proxyip=sjc.o00o.ooo" url: ,
+"https://xscm250711.xn--eywz0c.dpdns.org/xs?sub=owo.o00o.ooo&proxyip=sjc.o00o.ooo",
 "https://xysxwk250428.3344550.xyz/sub/full-normal/b2399c08-88a1-4b1a-b763-1334a31033ee?app=clash#%F0%9F%92%A6%20BPB%20Full%20Normal",
 "https://xycc24424.xskj.dedyn.io/xysx?sub=sub.mot.cloudns.biz&proxyip=ProxyIP.SG.CMLiussss.net",
 "https://6xvzd.no-mad-world.club/link/8qdpMT5zIZTrFZNF?clash=3",
