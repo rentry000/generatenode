@@ -48,7 +48,7 @@ jobs:
         git config --global user.name 'github-actions'  # 配置 Git 用户名
         git config --global user.email 'github-actions@github.com'  # 配置 Git 邮箱
         git add -f clash_config.yaml  # 强制添加文件
-        git commit -m 'Update clash_config.yaml || true  # 提交变更（允许空提交）
+        git commit -m 'Update clash_config.yaml || true’ # 提交变更（允许空提交）
 
     - name: Retry Push yaml file  # 重试推送文件
       env:
