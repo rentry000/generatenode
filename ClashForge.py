@@ -2871,6 +2871,12 @@ if __name__ == '__main__':
 "https://raw.githubusercontent.com/peasoft/NoMoreWalls/refs/heads/master/list.yml",
 "https://raw.githubusercontent.com/shaoyouvip/free/refs/heads/main/all.yaml",
 "https://raw.githubusercontent.com/twj0/subseek/refs/heads/master/data/sub_platform.txt",
-"https://raw.githubusercontent.com/twj0/subseek/refs/heads/master/data/sub_github.txt"
+"https://raw.githubusercontent.com/twj0/subseek/refs/heads/master/data/sub_github.txt",
+        "https://raw.githubusercontent.com/YFTree/ClashNodes/refs/heads/main/Clash/0.yaml",
+"https://raw.githubusercontent.com/YFTree/ClashNodes/refs/heads/main/Clash/1.yaml",
+"https://raw.githubusercontent.com/YFTree/ClashNodes/refs/heads/main/Clash/2.yaml",
+"https://raw.githubusercontent.com/YFTree/ClashNodes/refs/heads/main/Clash/3.yaml",
+"https://raw.githubusercontent.com/YFTree/ClashNodes/refs/heads/main/Clash/4.yaml",
+"https://raw.githubusercontent.com/RYSF13/project-wallbreaker/refs/heads/main/subscribe/v2ray.txt"
     ]
     work(links, check=True, only_check=False, allowed_types=["ss", "hysteria2", "hy2", "vless", "vmess", "trojan"])
