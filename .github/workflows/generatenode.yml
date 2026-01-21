@@ -5,7 +5,7 @@ name: generatenode
 
 on:
   schedule:
-    - cron: '* * 2 * *'  # 每20分钟运行一次
+    - cron: '* 3 * * *'  # 每20分钟运行一次
   workflow_dispatch:  # 允许手动触发
 
 jobs:
