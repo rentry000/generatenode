@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest  # 使用最新的 Ubuntu 版本作为运行器
     timeout-minutes: 360
     steps:
-    - name: Setup Node.js 20  # 设置 Node.js 20 环境
+    - name: Setup Node.js 24  # 设置 Node.js 20 环境
       uses: actions/setup-node@v3
       with:
-        node-version: '20'  # 指定 Node.js 版本 20
+        node-version: '24'  # 指定 Node.js 版本 20
 
     - name: Setup Python 3.12.11  # 设置 Python 3.9 环境
       uses: actions/setup-python@v4
