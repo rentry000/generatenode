@@ -28,32 +28,36 @@ jobs:
     - name: Setup Python 3.12
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'  # 稳定大版本，避免小版本兼容性问题
-        # 移除了 cache: 'pip' 配置，彻底解决文件找不到报错
+        python-version: '3.12'
 
     - name: Install dependencies and mihomo
-      # 开启严格错误退出：任何命令失败立即终止，避免连锁异常
+      # 严格错误退出机制，任何命令失败立即终止
       run: |
         set -euo pipefail
-        sudo apt-get update
-        sudo apt-get install -y wget apt-transport-https software-properties-common bash python3-pip
-        # 下载mihomo添加失败重试和超时，避免下载空文件
-        wget --fail-on-error --tries=3 --timeout=30 https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq wget apt-transport-https software-properties-common bash python3-pip
+        # 修复：替换为全版本兼容的wget参数，保留重试、超时、失败退出能力
+        wget --fail --tries=3 --timeout=30 https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
+        # 解压前校验文件有效性
+        if [ ! -s mihomo-linux-amd64-v3-v1.19.12.gz ]; then
+          echo "[ERROR] mihomo下载失败，文件为空"
+          exit 1
+        fi
         gzip -d mihomo-linux-amd64-v3-v1.19.12.gz
         mv mihomo-linux-amd64-v3-v1.19.12 mihomo
         chmod +x mihomo
         sudo mv mihomo /usr/local/bin/
         # 验证mihomo安装成功
         mihomo -v
-        # 升级pip并安装依赖（移除了Python自带的asyncio标准库）
-        python3 -m pip install --upgrade pip
-        python3 -m pip install requests PyYAML httpx psutil requests_html lxml[html_clean]
+        # 升级pip并安装依赖
+        python3 -m pip install --upgrade pip -qq
+        python3 -m pip install requests PyYAML httpx psutil requests_html lxml[html_clean] -qq
         # 验证所有依赖导入成功，提前暴露问题
         python3 -c "import requests, yaml, httpx, psutil, requests_html, lxml"
         echo "所有依赖安装完成"
 
     - name: Run ClashForge.py
-      # 单步骤超时控制，避免无限运行；-u参数强制实时输出，解决无输出超时被杀问题
+      # 单步骤超时控制，-u强制实时输出，避免无输出超时被杀
       timeout-minutes: 300
       run: |
         set -euo pipefail
@@ -65,9 +69,9 @@ jobs:
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
         git add -f clash_config.yaml
-        # 修复commit语法，|| true移到引号外，正确支持空提交
+        # 修复commit语法，正确支持空提交
         git commit -m 'Update clash_config.yaml' || true
-        # 推送前先拉取最新代码，避免冲突
+        # 推送前拉取最新代码，避免冲突
         git pull --rebase origin HEAD || true
         # 重试推送机制
         for i in {1..5}; do
