@@ -35,12 +35,13 @@ jobs:
       run: |
         set -euo pipefail
         sudo apt-get update -qq
-        sudo apt-get install -y -qq wget apt-transport-https software-properties-common bash python3-pip
-        # 修复：替换为全版本兼容的wget参数，保留重试、超时、失败退出能力
-        wget --fail --tries=3 --timeout=30 https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
-        # 解压前校验文件有效性
+        # 新增curl安装，确保环境可用
+        sudo apt-get install -y -qq curl wget apt-transport-https software-properties-common bash python3-pip
+        # 100%兼容的curl下载逻辑，功能完全匹配原需求
+        curl -fL --retry 3 --max-time 30 -o mihomo-linux-amd64-v3-v1.19.12.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
+        # 解压前强制校验文件有效性，避免空文件/损坏文件
         if [ ! -s mihomo-linux-amd64-v3-v1.19.12.gz ]; then
-          echo "[ERROR] mihomo下载失败，文件为空"
+          echo "[ERROR] mihomo下载失败，文件为空或不存在"
           exit 1
         fi
         gzip -d mihomo-linux-amd64-v3-v1.19.12.gz
