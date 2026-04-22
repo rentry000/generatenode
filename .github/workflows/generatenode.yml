@@ -1,59 +1,74 @@
-#以下是修改后的 GitHub Actions 工作流文件，在安装依赖项步骤中增加了 Python-pip 的安装：
-
 name: generatenode
-# Workflow name
 
 on:
   schedule:
-    - cron: '* 3 * * *'  # 每20分钟运行一次
-  workflow_dispatch:  # 允许手动触发
+    - cron: '*/20 * * * *'  # 正确的每20分钟运行一次，如需限定每天3点改为：*/20 3 * * *
+  workflow_dispatch:
+
+# 核心防并发配置：同一时间只允许一个任务运行，避免旧任务被取消
+concurrency:
+  group: generatenode-workflow
+  cancel-in-progress: false  # 禁止新任务取消正在运行的旧任务
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 版本作为运行器
+    runs-on: ubuntu-latest
     timeout-minutes: 360
     steps:
-    - name: Setup Node.js 24  # 设置 Node.js 20 环境
-      uses: actions/setup-node@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
       with:
-        node-version: '24'  # 指定 Node.js 版本 20
+        fetch-depth: 0
 
-    - name: Setup Python 3.12.11  # 设置 Python 3.9 环境
-      uses: actions/setup-python@v4
+    - name: Setup Node.js 24
+      uses: actions/setup-node@v4
       with:
-        python-version: '3.12.11'  # 指定 Python 版本 3.9
+        node-version: '24'
 
-    - name: Checkout repository  # 检出代码仓库
-      uses: actions/checkout@v3
+    - name: Setup Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'  # 用稳定大版本，避免小版本兼容性问题
+        cache: 'pip'
 
-    - name: Install dependencies and sing-box  # 安装依赖项和 sing-box
+    - name: Install dependencies and mihomo
+      # 开启错误退出：任何命令失败立即终止，避免连锁异常
       run: |
-        sudo apt-get update  # 更新软件包列表
-        sudo apt-get install -y wget apt-transport-https software-properties-common  # 安装必要工具
-        wget https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
+        set -euo pipefail
+        sudo apt-get update
+        sudo apt-get install -y wget apt-transport-https software-properties-common bash python3-pip
+        # 修复：wget添加失败退出，避免下载空文件
+        wget --fail-on-error --tries=3 --timeout=30 https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
         gzip -d mihomo-linux-amd64-v3-v1.19.12.gz
         mv mihomo-linux-amd64-v3-v1.19.12 mihomo
-        chmod u+x mihomo
-        sudo apt install -y bash
-        sudo apt install -y python3-pip  # 显式安装 Python3-pip
-        pip3 install --upgrade pip  # 升级 pip 到最新版本
-        pip3 install requests PyYAML httpx asyncio psutil requests_html lxml[html_clean]
+        chmod +x mihomo
+        sudo mv mihomo /usr/local/bin/
+        # 验证mihomo安装成功
+        mihomo -v
+        # 升级pip并安装依赖
+        python3 -m pip install --upgrade pip
+        python3 -m pip install requests PyYAML httpx asyncio psutil requests_html lxml[html_clean]
+        # 验证依赖安装成功
+        python3 -c "import requests, yaml, httpx, asyncio, psutil, requests_html, lxml"
+        echo "所有依赖安装完成"
 
-
-    - name: Run ClashForge.py  # 运行 Python 脚本
-      run: python3 ClashForge.py  # 显式使用 Python3 执行脚本
-      
-    - name: submit
+    - name: Run ClashForge.py
+      # 单步骤超时控制，避免无限运行；-u参数强制实时输出，解决无输出超时
+      timeout-minutes: 300
       run: |
-        git config --global user.name 'github-actions'  # 配置 Git 用户名
-        git config --global user.email 'github-actions@github.com'  # 配置 Git 邮箱
-        git add -f clash_config.yaml  # 强制添加文件
-        git commit -m 'Update clash_config.yaml || true' # 提交变更（允许空提交）
+        set -euo pipefail
+        python3 -u ClashForge.py
 
-    - name: Retry Push yaml file  # 重试推送文件
-      env:
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 密钥进行身份验证
+    - name: Commit and push config file
       run: |
-        for i in {1..5}; do  # 最多重试5次
-          git push --force origin HEAD && break || (echo "Push failed, retrying in 10 seconds..." && sleep 10)
+        set -euo pipefail
+        git config --global user.name 'github-actions'
+        git config --global user.email 'github-actions@github.com'
+        git add -f clash_config.yaml
+        # 修复：|| true移到引号外，正确实现允许空提交
+        git commit -m 'Update clash_config.yaml' || true
+        # 推送前先拉取最新代码，避免冲突
+        git pull --rebase origin HEAD
+        for i in {1..5}; do
+          git push origin HEAD && break || (echo "Push failed, retrying in 10 seconds..." && sleep 10)
         done
