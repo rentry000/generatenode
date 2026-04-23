@@ -136,7 +136,7 @@ jobs:
           PATCH_EOF
 
       - name: Run ClashForge.py
-        timeout-minutes: 300
+        timeout-minutes: 360
         env:
           PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
         run: |
