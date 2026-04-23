@@ -2,7 +2,7 @@ name: generatenode
 
 on:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '*/20 * * * *'
   workflow_dispatch:
 
 # 核心防并发配置：同一时间只允许一个任务运行，避免旧任务被强制取消
@@ -78,27 +78,27 @@ jobs:
           
           # 在文件顶部import区域添加 safe_decode 函数和 nest_asyncio
           import_header = '''
-# ====== Auto-patched: encoding & event loop fixes ======
-import asyncio
-try:
-    import nest_asyncio
-    nest_asyncio.apply()
-except ImportError:
-    pass
-
-def safe_decode(raw_bytes):
-    \"\"\"安全解码字节数据，自动尝试多种编码\"\"\"
-    encodings = ['utf-8', 'gbk', 'gb2312', 'gb18030', 'big5', 'latin-1']
-    for enc in encodings:
-        try:
-            return raw_bytes.decode(enc)
-        except (UnicodeDecodeError, LookupError):
-            continue
-    return raw_bytes.decode('utf-8', errors='replace')
-
-# ====== End auto-patch ======
-
-'''
+          # ====== Auto-patched: encoding & event loop fixes ======
+          import asyncio
+          try:
+              import nest_asyncio
+              nest_asyncio.apply()
+          except ImportError:
+              pass
+          
+          def safe_decode(raw_bytes):
+              \"\"\"安全解码字节数据，自动尝试多种编码\"\"\"
+              encodings = ['utf-8', 'gbk', 'gb2312', 'gb18030', 'big5', 'latin-1']
+              for enc in encodings:
+                  try:
+                      return raw_bytes.decode(enc)
+                  except (UnicodeDecodeError, LookupError):
+                      continue
+              return raw_bytes.decode('utf-8', errors='replace')
+          
+          # ====== End auto-patch ======
+          
+          '''
           
           # 避免重复打补丁
           if 'safe_decode' not in content:
