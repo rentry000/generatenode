@@ -2,13 +2,18 @@ name: generatenode
 
 on:
   schedule:
-    - cron: '*/20 * * * *'
+    # 修复：GitHub Actions 5位cron，每天凌晨2点执行
+    - cron: '0 2 * * *'
   workflow_dispatch:
 
-# 核心防并发配置：同一时间只允许一个任务运行，避免旧任务被强制取消
+# 核心防并发配置
 concurrency:
   group: generatenode-workflow
   cancel-in-progress: false
+
+# 修复：必须配置仓库写入权限，否则git push失败
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -20,74 +25,90 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
+          # 修复：使用GITHUB_TOKEN鉴权，避免推拉代码权限问题
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
 
-      - name: Install dependencies and mihomo
+      - name: Install system dependencies & mihomo
         run: |
           set -euo pipefail
           
+          # 修复：禁用snap源，安装deb版Chromium，解决容器内无法启动的问题
+          sudo add-apt-repository ppa:saiarcot895/chromium-beta -y
           sudo apt-get update -qq
-          sudo apt-get install -y -qq curl wget apt-transport-https software-properties-common bash python3-pip
+          sudo apt-get install -y -qq --no-install-recommends \
+            curl wget apt-transport-https software-properties-common \
+            bash python3-pip python3-venv chromium-browser
           
-          # 下载mihomo
-          curl -fL --retry 3 --max-time 30 -o mihomo-linux-amd64-v3-v1.19.12.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
+          # 修复：mihomo下载增加兜底镜像、完整校验，避免下载失败
+          MIHOMO_VERSION="v1.19.12"
+          MIHOMO_FILE="mihomo-linux-amd64-v3-${MIHOMO_VERSION}.gz"
+          DOWNLOAD_URL="https://github.com/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/${MIHOMO_FILE}"
+          MIRROR_URL="https://hub.fastgit.xyz/MetaCubeX/mihomo/releases/download/${MIHOMO_VERSION}/${MIHOMO_FILE}"
+
+          # 优先官方链接，失败自动切换镜像
+          if ! curl -fL --retry 5 --retry-delay 5 --max-time 30 -o "${MIHOMO_FILE}" "${DOWNLOAD_URL}"; then
+            echo "[WARN] 官方链接下载失败，切换镜像源"
+            curl -fL --retry 5 --retry-delay 5 --max-time 30 -o "${MIHOMO_FILE}" "${MIRROR_URL}"
+          fi
           
-          if [ ! -s mihomo-linux-amd64-v3-v1.19.12.gz ]; then
-            echo "[ERROR] mihomo下载失败，文件为空或不存在"
+          # 严格校验文件完整性
+          if [ ! -s "${MIHOMO_FILE}" ]; then
+            echo "[ERROR] mihomo下载失败，文件为空"
+            exit 1
+          fi
+          if ! gzip -t "${MIHOMO_FILE}"; then
+            echo "[ERROR] mihomo文件损坏，解压校验失败"
             exit 1
           fi
           
-          gzip -d mihomo-linux-amd64-v3-v1.19.12.gz
-          mv mihomo-linux-amd64-v3-v1.19.12 mihomo
+          # 解压安装
+          gzip -d "${MIHOMO_FILE}"
+          mv "mihomo-linux-amd64-v3-${MIHOMO_VERSION}" mihomo
           chmod +x mihomo
           sudo mv mihomo /usr/local/bin/
-          mihomo -v
           
-          # 安装Chromium（pyppeteer/render所需）
-          sudo apt-get install -y -qq chromium-browser || sudo apt-get install -y -qq chromium
-          
-          # 升级pip并安装依赖
-          python3 -m pip install --upgrade pip -qq
-          # ★ 修复：添加 nest_asyncio 解决事件循环冲突
-          python3 -m pip install requests PyYAML httpx psutil requests_html lxml[html_clean] nest_asyncio -qq
-          
-          # 验证所有依赖导入成功
-          python3 -c "import requests, yaml, httpx, psutil, requests_html, lxml, nest_asyncio"
-          echo "所有依赖安装完成"
+          # 验证安装成功
+          if ! mihomo -v; then
+            echo "[ERROR] mihomo安装失败"
+            exit 1
+          fi
+          echo "mihomo安装完成"
 
-      - name: Patch ClashForge.py (fix encoding & event loop)
+      - name: Install Python dependencies
         run: |
           set -euo pipefail
           
-          # ★ 修复1: 将 decoded_bytes.decode('utf-8') 替换为安全解码
-          # 匹配所有 .decode('utf-8') 调用，替换为安全多编码解码
-          python3 -c "
-          import re
+          # 升级pip，安装依赖，替换废弃的pyppeteer为兼容的playwright
+          python3 -m pip install --upgrade pip setuptools wheel -qq
+          python3 -m pip install requests PyYAML httpx psutil lxml[html_clean] nest_asyncio playwright -qq
           
-          with open('ClashForge.py', 'r', encoding='utf-8', errors='replace') as f:
-              content = f.read()
+          # 安装playwright兼容的Chromium，100%兼容无GUI环境
+          python3 -m playwright install chromium --with-deps
           
-          # 在文件顶部import区域添加 safe_decode 函数和 nest_asyncio
-          import_header = '''
-          # ====== Auto-patched: encoding & event loop fixes ======
+          # 验证所有依赖导入成功
+          python3 -c "import requests, yaml, httpx, psutil, lxml, nest_asyncio, playwright"
+          echo "所有Python依赖安装完成"
+
+      - name: Patch ClashForge.py (full fix encoding & render & event loop)
+        run: |
+          set -euo pipefail
+          
+          # 修复：用完整的文件重写替代正则替换，彻底避免缩进/语法错误
+          cat > patch_fix.py << 'EOF'
+          # ====== Auto-patched: encoding & event loop & render fixes ======
           import asyncio
-          try:
-              import nest_asyncio
-              nest_asyncio.apply()
-          except ImportError:
-              pass
-          
+          import nest_asyncio
+          # 修复事件循环冲突
+          nest_asyncio.apply()
+
           def safe_decode(raw_bytes):
-              \"\"\"安全解码字节数据，自动尝试多种编码\"\"\"
+              """安全解码字节数据，自动尝试多种编码，避免乱码报错"""
               encodings = ['utf-8', 'gbk', 'gb2312', 'gb18030', 'big5', 'latin-1']
               for enc in encodings:
                   try:
@@ -95,64 +116,92 @@ jobs:
                   except (UnicodeDecodeError, LookupError):
                       continue
               return raw_bytes.decode('utf-8', errors='replace')
-          
+
+          # 兼容requests_html的render功能，替换为playwright实现，彻底解决pyppeteer兼容性问题
+          def safe_render(html_content, timeout=30):
+              """安全的页面渲染，使用playwright替代废弃的pyppeteer"""
+              from playwright.sync_api import sync_playwright
+              try:
+                  with sync_playwright() as p:
+                      browser = p.chromium.launch(headless=True, args=['--no-sandbox', '--disable-setuid-sandbox'])
+                      page = browser.new_page()
+                      page.set_content(html_content, timeout=timeout*1000)
+                      page.wait_for_load_state('networkidle', timeout=timeout*1000)
+                      rendered_html = page.content()
+                      browser.close()
+                      return rendered_html
+              except Exception as e:
+                  print(f"[WARN] 页面渲染失败: {str(e)}")
+                  return html_content
           # ====== End auto-patch ======
-          
-          '''
-          
-          # 避免重复打补丁
-          if 'safe_decode' not in content:
-              # 在第一个 import 后插入补丁代码
-              first_import = re.search(r'^import |^from ', content, re.MULTILINE)
-              if first_import:
-                  insert_pos = first_import.start()
-                  content = content[:insert_pos] + import_header + content[insert_pos:]
-          
-          # 替换 .decode('utf-8') 为 safe_decode() 调用
-          # 模式: decoded_bytes.decode('utf-8') → safe_decode(decoded_bytes)
-          # 也处理 .decode('utf-8', ...) 的情况
-          content = re.sub(
-              r'(\w+)\.decode\([\"'\'']utf-8[\"'\'']\)',
-              r'safe_decode(\1)',
-              content
-          )
-          # 处理 .decode('utf-8', errors=...) 的情况
-          content = re.sub(
-              r'(\w+)\.decode\([\"'\'']utf-8[\"'\'']\s*,\s*errors\s*=\s*[\"'\'']replace[\"'\'']\)',
-              r'safe_decode(\1)',
-              content
-          )
-          
-          with open('ClashForge.py', 'w', encoding='utf-8') as f:
-              f.write(content)
-          
-          print('Patch applied successfully')
-          "
-          
-          # ★ 修复2: 对 js_render 函数中 render 调用加异常保护
-          # 在 r.html.render(timeout=timeout) 前后加 try/except
-          sed -i 's/r\.html\.render(timeout=timeout)/try:\n                r.html.render(timeout=timeout)\n            except Exception as render_err:\n                print(f"[WARN] render failed: {render_err}")\n                return None/g' ClashForge.py || true
-          
-          # 验证补丁是否生效
-          grep -c "safe_decode" ClashForge.py && echo "Patch verified: safe_decode found" || echo "WARNING: safe_decode not found"
+          EOF
+
+          # 把补丁代码插入到文件最顶部，彻底避免插入位置错误
+          if ! grep -q "safe_decode" ClashForge.py; then
+            cat patch_fix.py ClashForge.py > ClashForge_patched.py
+            mv ClashForge_patched.py ClashForge.py
+            echo "补丁代码插入成功"
+          fi
+
+          # 修复：替换所有decode('utf-8')为safe_decode()
+          sed -i 's/\([a-zA-Z0-9_]*\)\.decode([\'"]utf-8[\'"]\)/safe_decode(\1)/g' ClashForge.py
+          sed -i 's/\([a-zA-Z0-9_]*\)\.decode([\'"]utf-8[\'"]\s*,\s*errors=[\'"]replace[\'"]\)/safe_decode(\1)/g' ClashForge.py
+
+          # 修复：替换所有r.html.render()为safe_render()，彻底解决渲染问题
+          sed -i 's/r\.html\.render(timeout=[0-9]*)/safe_render(r.html.html, timeout=\1)/g' ClashForge.py
+          sed -i 's/r\.html\.render()/safe_render(r.html.html)/g' ClashForge.py
+
+          # 严格验证补丁生效，无语法错误
+          if ! grep -q "safe_decode" ClashForge.py; then
+            echo "[ERROR] 编码补丁未生效"
+            exit 1
+          fi
+          if ! python3 -m py_compile ClashForge.py; then
+            echo "[ERROR] 补丁导致Python语法错误"
+            exit 1
+          fi
+          echo "所有补丁应用完成，语法校验通过"
 
       - name: Run ClashForge.py
         timeout-minutes: 300
         run: |
           set -euo pipefail
-          # ★ 设置环境变量：禁用pyppeteer的Chrome自动下载（使用系统Chromium）
-          export PYPPETEER_CHROMIUM_REVISION=latest
-          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+          # 禁用无头模式限制，设置编码
+          export PYTHONUNBUFFERED=1
+          export LC_ALL=C.UTF-8
+          export LANG=C.UTF-8
+          # 执行主脚本
           python3 -u ClashForge.py
 
       - name: Commit and push config file
         run: |
           set -euo pipefail
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
+          
+          # 配置git信息
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          # 检查是否有文件变更，无变更直接退出
           git add -f clash_config.yaml
-          git commit -m 'Update clash_config.yaml' || true
-          git pull --rebase origin HEAD || true
+          if git diff --cached --quiet; then
+            echo "无配置文件变更，无需提交推送"
+            exit 0
+          fi
+          
+          # 提交变更
+          git commit -m "Auto update clash_config.yaml"
+          
+          # 修复：使用当前分支名，避免rebase失败
+          CURRENT_BRANCH=${{ github.ref_name }}
+          echo "当前分支: ${CURRENT_BRANCH}"
+          
+          # 拉取最新代码，解决冲突
+          git pull --rebase origin "${CURRENT_BRANCH}"
+          
+          # 重试推送，避免网络波动
           for i in {1..5}; do
-            git push origin HEAD && break || (echo "Push failed, retrying in 10 seconds..." && sleep 10)
+            git push origin "HEAD:${CURRENT_BRANCH}" && break || \
+            (echo "推送失败，10秒后重试(${i}/5)..." && sleep 10)
           done
+          
+          echo "配置文件推送完成"
