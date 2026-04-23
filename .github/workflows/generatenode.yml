@@ -1,154 +1,55 @@
+
 name: generatenode
+# Workflow name
+
 on:
   schedule:
-    - cron: '*/20 * * * *'
-  workflow_dispatch:
-
-concurrency:
-  group: generatenode-workflow
-  cancel-in-progress: false
+    - cron: '* 3 * * *'  # 每20分钟运行一次
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
+    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 版本作为运行器
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Setup Node.js 20  # 设置 Node.js 20 环境
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'  # 指定 Node.js 版本 20
 
-      - name: Setup Node.js 24
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
+    - name: Setup Python 3.12.11  # 设置 Python 3.9 环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12.11'  # 指定 Python 版本 3.9
 
-      - name: Setup Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+    - name: Checkout repository  # 检出代码仓库
+      uses: actions/checkout@v3
 
-      - name: Install dependencies and mihomo
-        run: |
-          set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq curl wget apt-transport-https software-properties-common bash python3-pip
-          # 安装 Chromium (供 pyppeteer/requests_html 使用)
-          sudo apt-get install -y -qq chromium-browser || sudo apt-get install -y -qq chromium
-          # 下载 mihomo
-          curl -fL --retry 3 --max-time 30 -o mihomo-linux-amd64-v3-v1.19.12.gz https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
-          if [ ! -s mihomo-linux-amd64-v3-v1.19.12.gz ]; then
-            echo "[ERROR] mihomo下载失败"
-            exit 1
-          fi
-          gzip -d mihomo-linux-amd64-v3-v1.19.12.gz
-          mv mihomo-linux-amd64-v3-v1.19.12 mihomo
-          chmod +x mihomo
-          sudo mv mihomo /usr/local/bin/
-          mihomo -v
-          # 安装 Python 依赖（新增 nest_asyncio）
-          python3 -m pip install --upgrade pip -qq
-          python3 -m pip install requests PyYAML httpx psutil requests_html lxml[html_clean] nest_asyncio -qq
-          python3 -c "import requests, yaml, httpx, psutil, requests_html, lxml, nest_asyncio"
-          echo "所有依赖安装完成"
-
-      - name: Patch ClashForge.py
-        run: |
-          set -euo pipefail
-          python3 << 'PATCH_EOF'
-          with open('ClashForge.py', 'r', encoding='utf-8') as f:
-              code = f.read()
-
-          # 补丁1: 注入 nest_asyncio (解决 event loop already running)
-          code = code.replace(
-              "from requests_html import HTMLSession",
-              "from requests_html import HTMLSession\nimport nest_asyncio\nnest_asyncio.apply()"
-          )
-
-          # 补丁2: 添加 safe_decode 函数 (解决 UnicodeDecodeError)
-          safe_decode_func = '''def safe_decode(raw_bytes, fallback_encodings=None):
-              if fallback_encodings is None:
-                  fallback_encodings = ['utf-8', 'gbk', 'gb2312', 'gb18030', 'big5', 'latin-1']
-              for enc in fallback_encodings:
-                  try:
-                      return raw_bytes.decode(enc)
-                  except (UnicodeDecodeError, LookupError):
-                      continue
-              return raw_bytes.decode('utf-8', errors='replace')
-
-          '''
-          code = code.replace("headers = {", safe_decode_func + "headers = {")
-
-          # 补丁3: 所有 decode('utf-8') 替换为 safe_decode()
-          code = code.replace(
-              "content = response.content.decode('utf-8')",
-              "content = safe_decode(response.content)"
-          )
-          code = code.replace(
-              "decoded_bytes.decode('utf-8')",
-              "safe_decode(decoded_bytes)"
-          )
-
-          # 补丁4: js_render 添加异常保护 + Chromium 路径
-          old_js = '''def js_render(url):
-              timeout = 4
-              if timeout > 15:
-                  timeout = 15
-              browser_args = ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-software-rasterizer',
-                  '--disable-setuid-sandbox']
-              session = HTMLSession(browser_args=browser_args)
-              r = session.get(f'{url}', headers=headers, timeout=timeout, verify=False)
-              # 等待页面加载完成，Requests-HTML 会自动等待 JavaScript 执行完成
-              r.html.render(timeout=timeout)
-              return r'''
-
-          new_js = '''def js_render(url):
-              timeout = 4
-              if timeout > 15:
-                  timeout = 15
-              browser_args = ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--disable-software-rasterizer',
-                  '--disable-setuid-sandbox']
-              import shutil
-              chromium_path = shutil.which('chromium-browser') or shutil.which('chromium')
-              if chromium_path:
-                  browser_args.append(f'--executable-path={chromium_path}')
-              try:
-                  session = HTMLSession(browser_args=browser_args)
-                  r = session.get(f'{url}', headers=headers, timeout=timeout, verify=False)
-                  r.html.render(timeout=timeout)
-                  return r
-              except Exception as e:
-                  print(f"js_render 失败 ({url}): {e}")
-                  return None'''
-
-          code = code.replace(old_js, new_js)
-
-          # 补丁5: js_render 返回值空值保护
-          code = code.replace(
-              "res = js_render(url)\n                    if 'external-controller' in res.html.text:",
-              "res = js_render(url)\n                    if res is None:\n                        return [], isyaml\n                    if 'external-controller' in res.html.text:"
-          )
-
-          with open('ClashForge.py', 'w', encoding='utf-8') as f:
-              f.write(code)
-
-          print("✅ ClashForge.py 补丁已成功应用")
-          PATCH_EOF
-
-      - name: Run ClashForge.py
-        timeout-minutes: 360
-        env:
-          PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
-        run: |
-          set -euo pipefail
-          python3 -u ClashForge.py
-
-      - name: Commit and push config file
-        run: |
-          set -euo pipefail
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git add -f clash_config.yaml
-          git commit -m 'Update clash_config.yaml' || true
-          git pull --rebase origin HEAD || true
-          for i in {1..5}; do git push origin HEAD && break || (echo "Push failed, retrying in 10 seconds..." && sleep 10); done
+    - name: Install dependencies and sing-box  # 安装依赖项和 sing-box
+      run: |
+        sudo apt-get update  # 更新软件包列表
+        sudo apt-get install -y wget apt-transport-https software-properties-common  # 安装必要工具
+        wget https://github.com/MetaCubeX/mihomo/releases/download/v1.19.12/mihomo-linux-amd64-v3-v1.19.12.gz
+        gzip -d mihomo-linux-amd64-v3-v1.19.12.gz
+        mv mihomo-linux-amd64-v3-v1.19.12 mihomo
+        chmod u+x mihomo
+        sudo apt install -y bash
+        sudo apt install -y python3-pip  # 显式安装 Python3-pip
+        pip3 install --upgrade pip  # 升级 pip 到最新版本
+        pip3 install requests PyYAML httpx asyncio psutil requests_html lxml[html_clean]
+    - name: Run ClashForge.py  # 运行 Python 脚本
+      run: python3 ClashForge.py  # 显式使用 Python3 执行脚本
+      
+    - name: submit
+      run: |
+        git config --global user.name 'github-actions'  # 配置 Git 用户名
+        git config --global user.email 'github-actions@github.com'  # 配置 Git 邮箱
+        git add -f clash_config.yaml  # 强制添加文件
+        git commit -m 'Update clash_config.yaml || true' # 提交变更（允许空提交）
+    - name: Retry Push yaml file  # 重试推送文件
+      env:
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 密钥进行身份验证
+      run: |
+        for i in {1..5}; do  # 最多重试5次
+          git push --force origin HEAD && break || (echo "Push failed, retrying in 10 seconds..." && sleep 10)
+        done
