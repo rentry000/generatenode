@@ -2016,14 +2016,14 @@ def parse_ssr_link(link):
 def parse_proxy_link(link):
     try:
         if link.startswith("hysteria2://") or link.startswith("hy2://"):
-        return parse_hysteria2_link(link)
-    elif link.startswith("quic://") or link.startswith("hysteria://"):
-        return parse_quic_link(link)
-    elif link.startswith("snell://"):
-        return parse_snell_link(link)
-    elif link.startswith("naive+https://") or link.startswith("naive+quic://") or link.startswith("naive://"):
-        return parse_naive_link(link)
-    elif link.startswith("tuic://"):
+            return parse_hysteria2_link(link)
+        elif link.startswith("quic://") or link.startswith("hysteria://"):
+            return parse_quic_link(link)
+        elif link.startswith("snell://"):
+            return parse_snell_link(link)
+        elif link.startswith("naive+https://") or link.startswith("naive+quic://") or link.startswith("naive://"):
+            return parse_naive_link(link)
+        elif link.startswith("tuic://"):
             return parse_tuic_link(link)
         elif link.startswith("warp://") or link.startswith("wg://"):
             return parse_warp_link(link)
