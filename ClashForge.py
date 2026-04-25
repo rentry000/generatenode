@@ -1550,7 +1550,7 @@ def parse_md_link(link):
         content = response.text
         content = urllib.parse.unquote(content)
         # 定义正则表达式模式，匹配所需的协议链接
-        pattern = r'(?:vless|vmess|trojan|hysteria2|hy2|tuic|warp|wg|ss):\/\/[^#\s]*(?:#[^\s]*)?'
+        pattern = r'(?:vless|vmess|trojan|hysteria2|hy2|hysteria|quic|snell|naive(?:\+https|\+quic)?|tuic|warp|wg|ss|ssr):\/\/[^#\s]*(?:#[^\s]*)?'
 
         # 使用re.findall()提取所有匹配的链接
         matches = re.findall(pattern, content)
@@ -1739,17 +1739,298 @@ def process_url(url):
         return [], isyaml
 
 
+# 解析 QUIC 链接（Clash Meta 中 quic 即 hysteria1）
+# quic://auth@server:port?sni=xxx&insecure=1&up=100&down=100#name
+# 也支持 hysteria:// 格式
+def parse_quic_link(link):
+    try:
+        # 去掉协议头
+        if link.startswith("quic://"):
+            link = link[7:]
+        elif link.startswith("hysteria://"):
+            link = link[11:]
+        
+        # 分离备注名
+        if '#' in link:
+            config_part, name = link.split('#', 1)
+            name = urllib.parse.unquote(name)
+        else:
+            config_part, name = link, "quic"
+        
+        # 分离 auth 和 server 信息
+        if '@' in config_part:
+            auth, host_info = config_part.split('@', 1)
+            auth = urllib.parse.unquote(auth)
+        else:
+            auth, host_info = "", config_part
+        
+        # 分离端口和查询参数
+        if '?' in host_info:
+            host_port, query_str = host_info.split('?', 1)
+        else:
+            host_port, query_str = host_info, ""
+        
+        # 解析 server:port
+        host_port = host_port.strip('/')
+        if ':' in host_port:
+            server = host_port.rsplit(':', 1)[0]
+            port_str = host_port.rsplit(':', 1)[1]
+            # 端口可能包含路径
+            port = int(port_str.split('/')[0])
+        else:
+            server = host_port
+            port = 443
+        
+        # 解析查询参数
+        params = urllib.parse.parse_qs(query_str)
+        sni = params.get('sni', [''])[0]
+        insecure = params.get('insecure', ['0'])[0] == '1'
+        up = params.get('up', [''])[0]
+        down = params.get('down', [''])[0]
+        obfs = params.get('obfs', [''])[0]
+        obfs_param = params.get('obfs-param', [''])[0] if obfs else ''
+        alpn = params.get('alpn', [''])[0]
+        
+        result = {
+            "name": name,
+            "type": "hysteria",
+            "server": server,
+            "port": port,
+            "auth": auth,
+            "auth-str": auth,
+            "sni": sni,
+            "skip-cert-verify": insecure,
+            "up": up,
+            "down": down,
+            "udp": True
+        }
+        
+        # 可选字段
+        if obfs:
+            result["obfs"] = obfs
+            if obfs_param:
+                result["obfs-param"] = obfs_param
+        if alpn:
+            result["alpn"] = alpn.split(',')
+        
+        return result
+    except Exception as e:
+        print(f"解析QUIC链接失败: {e}")
+        return None
+
+
+# 解析 Snell 链接
+# snell://psk@server:port?version=3&obfs=http&obfs-host=bing.com#name
+def parse_snell_link(link):
+    try:
+        link = link[8:]  # 去掉 snell://
+        
+        # 分离备注名
+        if '#' in link:
+            config_part, name = link.split('#', 1)
+            name = urllib.parse.unquote(name)
+        else:
+            config_part, name = link, "snell"
+        
+        # 分离 psk 和 server 信息
+        if '@' in config_part:
+            psk, host_info = config_part.split('@', 1)
+            psk = urllib.parse.unquote(psk)
+        else:
+            psk, host_info = "", config_part
+        
+        # 分离端口和查询参数
+        if '?' in host_info:
+            host_port, query_str = host_info.split('?', 1)
+        else:
+            host_port, query_str = host_info, ""
+        
+        # 解析 server:port
+        host_port = host_port.strip('/')
+        if ':' in host_port:
+            server = host_port.rsplit(':', 1)[0]
+            port_str = host_port.rsplit(':', 1)[1]
+            port = int(port_str.split('/')[0])
+        else:
+            server = host_port
+            port = 443
+        
+        # 解析查询参数
+        params = urllib.parse.parse_qs(query_str)
+        version = int(params.get('version', ['1'])[0])
+        obfs_mode = params.get('obfs', [''])[0]
+        obfs_host = params.get('obfs-host', [''])[0]
+        
+        result = {
+            "name": name,
+            "type": "snell",
+            "server": server,
+            "port": port,
+            "psk": psk,
+            "version": version,
+            "udp": True if version >= 3 else False
+        }
+        
+        # 混淆设置
+        if obfs_mode:
+            result["obfs-opts"] = {
+                "mode": obfs_mode
+            }
+            if obfs_host:
+                result["obfs-opts"]["host"] = obfs_host
+        
+        return result
+    except Exception as e:
+        print(f"解析Snell链接失败: {e}")
+        return None
+
+
+# 解析 NaiveProxy 链接
+# naive+https://user:pass@server:port?sni=xxx&insecure=0#name
+# naive+quic://user:pass@server:port?sni=xxx&insecure=0#name  (即 naive+quic → network: quic)
+# 也支持 naive:// 格式（默认https）
+def parse_naive_link(link):
+    try:
+        # 判断网络类型
+        if link.startswith("naive+quic://"):
+            network = "quic"
+            link = link[13:]
+        elif link.startswith("naive+https://"):
+            network = "https"
+            link = link[14:]
+        elif link.startswith("naive://"):
+            network = "https"
+            link = link[8:]
+        else:
+            network = "https"
+        
+        # 分离备注名
+        if '#' in link:
+            config_part, name = link.split('#', 1)
+            name = urllib.parse.unquote(name)
+        else:
+            config_part, name = link, "naive"
+        
+        # 分离 user:pass 和 server 信息
+        if '@' in config_part:
+            userinfo, host_info = config_part.split('@', 1)
+            # user:pass 需要用 base64 编码为 password 字段
+            if ':' in userinfo:
+                username, password = userinfo.split(':', 1)
+            else:
+                username, password = userinfo, ""
+            # Clash Meta naive 类型使用 username + password
+        else:
+            username, password, host_info = "", "", config_part
+        
+        # 分离端口和查询参数
+        if '?' in host_info:
+            host_port, query_str = host_info.split('?', 1)
+        else:
+            host_port, query_str = host_info, ""
+        
+        # 解析 server:port
+        host_port = host_port.strip('/')
+        if ':' in host_port:
+            server = host_port.rsplit(':', 1)[0]
+            port_str = host_port.rsplit(':', 1)[1]
+            port = int(port_str.split('/')[0])
+        else:
+            server = host_port
+            port = 443
+        
+        # 解析查询参数
+        params = urllib.parse.parse_qs(query_str)
+        sni = params.get('sni', [''])[0]
+        insecure = params.get('insecure', ['0'])[0] == '1'
+        skip_cert_verify = params.get('skip-cert-verify', [''])[0] == 'true'
+        
+        result = {
+            "name": name,
+            "type": "naive",
+            "server": server,
+            "port": port,
+            "username": urllib.parse.unquote(username),
+            "password": urllib.parse.unquote(password),
+            "network": network,
+            "udp": True,
+            "skip-cert-verify": insecure or skip_cert_verify
+        }
+        
+        # 可选字段
+        if sni:
+            result["sni"] = sni
+        
+        return result
+    except Exception as e:
+        print(f"解析NaiveProxy链接失败: {e}")
+        return None
+
+
+# 解析 SSR 链接
+# ssr://base64encoded_config
+def parse_ssr_link(link):
+    try:
+        link = link[6:]  # 去掉 ssr://
+        # SSR链接是base64编码的
+        decoded = safe_decode(base64.urlsafe_b64decode(link + '=' * (-len(link) % 4)))
+        # 格式: server:port:protocol:method:obfs:base64pass/?params#name
+        parts = decoded.split('/?')
+        main_part = parts[0]
+        params_str = parts[1] if len(parts) > 1 else ''
+        
+        main_fields = main_part.split(':')
+        if len(main_fields) < 6:
+            return None
+            
+        server = main_fields[0]
+        port = int(main_fields[1])
+        protocol = main_fields[2]
+        method = main_fields[3]
+        obfs = main_fields[4]
+        password_b64 = main_fields[5]
+        password = safe_decode(base64.urlsafe_b64decode(password_b64 + '=' * (-len(password_b64) % 4)))
+        
+        # 解析备注名
+        name = "ssr"
+        params = urllib.parse.parse_qs(params_str)
+        if 'remarks' in params:
+            remarks_b64 = params['remarks'][0]
+            name = safe_decode(base64.urlsafe_b64decode(remarks_b64 + '=' * (-len(remarks_b64) % 4)))
+        
+        return {
+            "name": urllib.parse.unquote(name),
+            "type": "ss",
+            "server": server,
+            "port": port,
+            "cipher": method,
+            "password": password,
+            "udp": True
+        }
+    except Exception as e:
+        print(f"解析SSR链接失败: {e}")
+        return None
+
+
 # 解析格不同的代理链接
 def parse_proxy_link(link):
     try:
         if link.startswith("hysteria2://") or link.startswith("hy2://"):
-            return parse_hysteria2_link(link)
-        elif link.startswith("tuic://"):
+        return parse_hysteria2_link(link)
+    elif link.startswith("quic://") or link.startswith("hysteria://"):
+        return parse_quic_link(link)
+    elif link.startswith("snell://"):
+        return parse_snell_link(link)
+    elif link.startswith("naive+https://") or link.startswith("naive+quic://") or link.startswith("naive://"):
+        return parse_naive_link(link)
+    elif link.startswith("tuic://"):
             return parse_tuic_link(link)
         elif link.startswith("warp://") or link.startswith("wg://"):
             return parse_warp_link(link)
         elif link.startswith("trojan://"):
             return parse_trojan_link(link)
+        elif link.startswith("ssr://"):
+            return parse_ssr_link(link)
         elif link.startswith("ss://"):
             return parse_ss_link(link)
         elif link.startswith("vless://"):
@@ -1838,15 +2119,46 @@ def merge_lists(*lists):
     return [item for item in chain.from_iterable(lists) if item != '']
 
 
+def is_valid_utf8(s):
+    """检查字符串是否为合法UTF-8，排除乱码"""
+    if not s or not isinstance(s, str):
+        return False
+    # 检查是否包含过多替换字符（乱码标志）
+    replace_count = s.count('\ufffd')
+    if replace_count > 3 or (len(s) > 0 and replace_count / len(s) > 0.1):
+        return False
+    # 检查是否包含常见代理协议前缀
+    valid_prefixes = ("hysteria2://", "hy2://", "quic://", "hysteria://", "snell://", "naive+https://", "naive+quic://", "naive://", "tuic://", "warp://", "wg://",
+                    "trojan://", "ss://", "ssr://", "vless://", "vmess://")
+    if s.strip().startswith(valid_prefixes):
+        return True
+    # 非代理协议的普通URL也放行
+    if s.strip().startswith(("http://", "https://")):
+        return True
+    # 其他情况检查是否包含过多不可打印字符
+    printable_ratio = sum(1 for c in s if c.isprintable() or c in '\t\n\r') / max(len(s), 1)
+    return printable_ratio > 0.8
+
+
 def handle_links(new_links, resolve_name_conflicts):
     try:
+        skipped = 0
         for new_link in new_links:
-            if new_link.startswith(("hysteria2://", "hy2://", "tuic://", "warp://", "wg://", "trojan://", "ss://", "vless://", "vmess://")):
-                node = parse_proxy_link(new_link)
+            # 先检查链接合法性
+            if not is_valid_utf8(new_link):
+                skipped += 1
+                continue
+            link_stripped = new_link.strip()
+            if link_stripped.startswith(("hysteria2://", "hy2://", "quic://", "hysteria://", "snell://", "naive+https://", "naive+quic://", "naive://", "tuic://", "warp://", "wg://", "trojan://", "ss://", "ssr://", "vless://", "vmess://")):
+                node = parse_proxy_link(link_stripped)
                 if node:
                     resolve_name_conflicts(node)
+                else:
+                    skipped += 1
             else:
-                print(f"跳过无效或不支持的链接: {new_link}")
+                skipped += 1
+        if skipped > 0:
+            print(f"  跳过 {skipped} 条无效/乱码链接")
     except Exception as e:
         pass
 
@@ -1878,7 +2190,7 @@ def generate_clash_config(links, load_nodes):
         resolve_name_conflicts(node)
 
     for link in links:
-        if link.startswith(("hysteria2://", "hy2://", "tuic://", "warp://", "wg://", "trojan://", "ss://", "vless://", "vmess://")):
+        if link.startswith(("hysteria2://", "hy2://", "quic://", "hysteria://", "snell://", "naive+https://", "naive+quic://", "naive://", "tuic://", "warp://", "wg://", "trojan://", "ss://", "ssr://", "vless://", "vmess://")):
             node = parse_proxy_link(link)
             if not node:
                 continue
@@ -2618,28 +2930,53 @@ def extract_file_pattern(url):
 
 # 从GitHub API获取匹配指定后缀的文件名
 def get_github_filename(github_url, file_suffix):
-    match = re.match(r'https://raw\.githubusercontent\.com/([^/]+)/([^/]+)/[^/]+/[^/]+/([^/]+)', github_url)
+    # 兼容两种URL格式:
+    # 1) https://raw.githubusercontent.com/owner/repo/refs/heads/branch/path
+    # 2) https://raw.githubusercontent.com/owner/repo/branch/path
+    match = re.match(r'https://raw\.githubusercontent\.com/([^/]+)/([^/]+)/(?:refs/heads/)?([^/]+)/(.+)', github_url)
     if not match:
-        raise ValueError("无法从URL中提取owner和repo信息")
-    owner, repo, branch = match.groups()
+        print(f"无法从URL中提取owner和repo信息: {github_url}")
+        return None
 
-    # 构建API URL
-    path_part = github_url.split(f'/refs/heads/{branch}/')[-1]
+    owner = match.group(1)
+    repo = match.group(2)
+    branch = match.group(3)
+    path_after_branch = match.group(4)
+
     # 移除 {x}<suffix> 部分来获取目录路径
-    path_part = re.sub(r'\{x\}' + re.escape(file_suffix) + '(?:/|$)', '', path_part)
-    api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{path_part}"
+    dir_path = re.sub(r'\{x\}' + re.escape(file_suffix) + '(?:/|$)', '', path_after_branch)
+    # 如果目录路径包含文件名部分，取其目录
+    if '/' in dir_path:
+        dir_path = dir_path.rsplit('/', 1)[0] if not dir_path.endswith('/') else dir_path.rstrip('/')
+    else:
+        dir_path = ''
 
-    response = requests.get(api_url)
-    if response.status_code != 200:
-        raise Exception(f"GitHub API请求失败: {response.status_code} {response.text}")
+    api_url = f"https://api.github.com/repos/{owner}/{repo}/contents/{dir_path}?ref={branch}"
 
-    files = response.json()
-    matching_files = [f['name'] for f in files if f['name'].endswith(file_suffix)]
+    try:
+        response = requests.get(api_url, headers=headers, timeout=10, verify=False)
+        if response.status_code != 200:
+            print(f"GitHub API请求失败({response.status_code}): {github_url}")
+            return None
 
-    if not matching_files:
-        raise Exception(f"未找到匹配的{file_suffix}文件")
+        files = response.json()
+        if not isinstance(files, list):
+            print(f"GitHub API返回非列表数据: {github_url}")
+            return None
 
-    return matching_files[0]
+        matching_files = [f['name'] for f in files if isinstance(f, dict) and f.get('name', '').endswith(file_suffix)]
+
+        if not matching_files:
+            print(f"未找到匹配{file_suffix}的文件: {github_url}")
+            return None
+
+        return matching_files[0]
+    except requests.RequestException as e:
+        print(f"GitHub API请求异常: {e}")
+        return None
+    except Exception as e:
+        print(f"获取GitHub文件名异常: {e}")
+        return None
 
 
 # 解析URL模板，支持任意组合的日期时间变量和分隔符
@@ -2694,8 +3031,12 @@ def resolve_template_url(template_url):
         file_suffix = extract_file_pattern(resolved_url)
         if file_suffix:
             filename = get_github_filename(resolved_url, file_suffix)
-            # 替换 {x}<suffix> 为实际文件名
-            resolved_url = re.sub(r'\{x\}' + re.escape(file_suffix), filename, resolved_url)
+            if filename:
+                # 替换 {x}<suffix> 为实际文件名
+                resolved_url = re.sub(r'\{x\}' + re.escape(file_suffix), filename, resolved_url)
+            else:
+                print(f"无法解析GitHub模板URL，跳过: {resolved_url}")
+                return template_url  # 返回原始模板URL，不做替换
 
     # 如果有代理前缀，重新添加上
     if proxy_prefix:
@@ -3781,4 +4122,4 @@ if __name__ == '__main__':
 "https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/voken100g/_recent.yaml",
 "https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/HiN-VPN/subscription/source/base64/speeds_vpn1.yaml"
     ]
-    work(links, check=True, only_check=False, allowed_types=["ss", "hysteria2", "hy2", "vless", "vmess", "trojan", "tuic", "wireguard"])
+    work(links, check=True, only_check=False, allowed_types=["ss", "hysteria2", "hy2", "vless", "vmess", "trojan", "tuic", "wireguard", "hysteria", "snell", "naive"])
