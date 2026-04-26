@@ -24,13 +24,14 @@ import platform
 import os
 from datetime import datetime
 from asyncio import Semaphore
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import ssl
 
 ssl._create_default_https_context = ssl._create_unverified_context
 import warnings
 
 warnings.filterwarnings('ignore')
-from requests_html import HTMLSession
+# from requests_html import HTMLSession  # REMOVED for performance
 import psutil
 
 try:
@@ -1545,7 +1546,7 @@ def parse_ss_sub(link):
 def parse_md_link(link):
     try:
         # 发送请求并获取内容
-        response = requests.get(link)
+        response = requests.get(link, timeout=15)
         response.raise_for_status()  # 检查请求是否成功
         content = response.text
         content = urllib.parse.unquote(content)
@@ -1563,77 +1564,8 @@ def parse_md_link(link):
 
 # js渲染页面
 def js_render(url):
-    """使用子进程方式运行pyppeteer，避免事件循环嵌套问题"""
-    timeout = 4
-    if timeout > 15:
-        timeout = 15
-
-    # 优先使用子进程方式，避免event loop嵌套
-    script = '''
-import sys
-import asyncio
-from pyppeteer import launch
-
-async def main():
-    browser = None
-    try:
-        import shutil
-        exec_path = shutil.which('chromium-browser') or shutil.which('chromium') or shutil.which('google-chrome')
-        browser_args = ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu',
-                        '--disable-software-rasterizer', '--disable-setuid-sandbox']
-        launch_opts = {'args': browser_args, 'headless': True}
-        if exec_path:
-            launch_opts['executablePath'] = exec_path
-        browser = await launch(**launch_opts)
-        page = await browser.newPage()
-        await page.goto(sys.argv[1], {'timeout': timeout * 1000, 'waitUntil': 'networkidle0'})
-        content = await page.content()
-        print(content)
-    except Exception as e:
-        print(f"JS_RENDER_ERROR: {e}", file=sys.stderr)
-    finally:
-        if browser:
-            await browser.close()
-
-timeout = ''' + str(timeout) + '''
-asyncio.get_event_loop().run_until_complete(main())
-'''
-    try:
-        result = subprocess.run(
-            ['python3', '-c', script, url],
-            capture_output=True, text=True, timeout=timeout + 10,
-            env={**os.environ, 'PYPPETEER_CHROMIUM_REVISION': 'latest'}
-        )
-        if result.returncode == 0 and result.stdout:
-            # 创建一个模拟response对象，兼容后续调用
-            class MockResponse:
-                def __init__(self, text):
-                    class Html:
-                        text = ""
-                    self.html = Html()
-                    self.html.text = text
-            return MockResponse(result.stdout.strip())
-        else:
-            print(f"js_render子进程失败: {result.stderr.strip()[:200] if result.stderr else 'unknown'}")
-            return None
-    except subprocess.TimeoutExpired:
-        print("js_render超时")
-        return None
-    except FileNotFoundError:
-        # pyppeteer未安装，尝试requests_html
-        try:
-            browser_args = ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu',
-                            '--disable-software-rasterizer', '--disable-setuid-sandbox']
-            session = HTMLSession(browser_args=browser_args)
-            r = session.get(f'{url}', headers=headers, timeout=timeout, verify=False)
-            r.html.render(timeout=timeout)
-            return r
-        except Exception as e:
-            print(f"js_render(requests_html)失败: {e}")
-            return None
-    except Exception as e:
-        print(f"js_render异常: {e}")
-        return None
+    """已禁用 - js渲染极慢(每次14秒)，改用httpx+timeout直接请求"""
+    return None
 
 
 # je_render返回的text没有缩进，通过正则表达式匹配proxies下的所有代理节点
@@ -1652,90 +1584,34 @@ def match_nodes(text):
     return yaml_data
 
 
-# link非代理协议时(https)，请求url解析
+# link非代理协议时(https)，请求url解析 - 优化版(无js_render，加timeout)
 def process_url(url):
     isyaml = False
     try:
-        # 发送GET请求
-        response = requests.get(url, headers=headers, verify=False, allow_redirects=True)
-        # 确保响应状态码为200
+        response = requests.get(url, headers=headers, verify=False, allow_redirects=True, timeout=15)
         if response.status_code == 200:
-            content = safe_decode(response.content)
-            if 'proxies:' in content:
-                if '</pre>' in content:
-                    content = content.replace('<pre style="word-wrap: break-word; white-space: pre-wrap;">',
-                                              '').replace('</pre>', '')
-                # YAML格式
-                yaml_data = yaml.safe_load(content)
-                if 'proxies' in yaml_data:
-                    isyaml = True
-                    proxies = yaml_data['proxies'] if yaml_data['proxies'] else []
-                    return proxies, isyaml
-                else:
-                    # 尝试Base64解码
-                    try:
-                        decoded_bytes = base64.b64decode(content)
-                        decoded_content = safe_decode(decoded_bytes)
-                        decoded_content = urllib.parse.unquote(decoded_content)
-                        return decoded_content.splitlines(), isyaml
-                    except Exception as e:
-                        try:
-                            res = js_render(url)
-                            if res is None:
-                                return [], isyaml
-                            if 'external-controller' in res.html.text:
-                                # YAML格式
-                                try:
-                                    yaml_data = yaml.safe_load(res.html.text)
-                                except Exception as e:
-                                    yaml_data = match_nodes(res.html.text)
-                                if 'proxies' in yaml_data:
-                                    isyaml = True
-                                    return yaml_data['proxies'], isyaml
-                            else:
-                                pattern = r'([A-Za-z0-9_+/\-]+={0,2})'
-                                matches = re.findall(pattern, res.html.text)
-                                stdout = matches[-1] if matches else []
-                                decoded_bytes = base64.b64decode(stdout)
-                                decoded_content = safe_decode(decoded_bytes)
-                                return decoded_content.splitlines(), isyaml
-                        except Exception as e:
-                            # 如果不是Base64编码，直接按行处理
-                            return [], isyaml
-            else:
-                # 没有proxies:，尝试Base64解码
+            content_text = safe_decode(response.content)
+            if 'proxies:' in content_text:
+                if '</pre>' in content_text:
+                    content_text = content_text.replace('<pre style="word-wrap: break-word; white-space: pre-wrap;">', '').replace('</pre>', '')
                 try:
-                    decoded_bytes = base64.b64decode(content)
-                    decoded_content = safe_decode(decoded_bytes)
-                    decoded_content = urllib.parse.unquote(decoded_content)
-                    return decoded_content.splitlines(), isyaml
-                except Exception as e:
-                    try:
-                        res = js_render(url)
-                        if res is None:
-                            return [], isyaml
-                        if 'external-controller' in res.html.text:
-                            try:
-                                yaml_data = yaml.safe_load(res.html.text)
-                            except Exception as e:
-                                yaml_data = match_nodes(res.html.text)
-                            if 'proxies' in yaml_data:
-                                isyaml = True
-                                return yaml_data['proxies'], isyaml
-                        else:
-                            pattern = r'([A-Za-z0-9_+/\-]+={0,2})'
-                            matches = re.findall(pattern, res.html.text)
-                            stdout = matches[-1] if matches else []
-                            decoded_bytes = base64.b64decode(stdout)
-                            decoded_content = safe_decode(decoded_bytes)
-                            return decoded_content.splitlines(), isyaml
-                    except Exception as e:
-                        return [], isyaml
+                    yaml_data = yaml.safe_load(content_text)
+                    if yaml_data and 'proxies' in yaml_data:
+                        isyaml = True
+                        proxies = yaml_data.get('proxies') or []
+                        return proxies, isyaml
+                except Exception:
+                    pass
+            try:
+                decoded_bytes = base64.b64decode(content_text)
+                decoded_content = safe_decode(decoded_bytes)
+                decoded_content = urllib.parse.unquote(decoded_content)
+                return decoded_content.splitlines(), isyaml
+            except Exception:
+                return content_text.splitlines(), isyaml
         else:
-            print(f"Failed to retrieve data from {url}, status code: {response.status_code}")
             return [], isyaml
     except requests.RequestException as e:
-        print(f"An error occurred while requesting {url}: {e}")
         return [], isyaml
 
 
