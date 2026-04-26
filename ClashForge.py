@@ -66,6 +66,7 @@ SPEED_TEST = False
 SPEED_TEST_LIMIT = 5  # 只测试前30个节点的下行速度，每个节点测试5秒
 results_speed = []
 MAX_CONCURRENT_TESTS = 100
+MAX_CONCURRENT_SUBS = 50  # 并发下载订阅源数量
 LIMIT = 10000  # 最多保留LIMIT个节点
 CONFIG_FILE = 'clash_config.yaml'
 INPUT = "input"  # 从文件中加载代理节点，支持yaml/yml、txt(每条代理链接占一行)
@@ -1472,33 +1473,107 @@ def parse_trojan_link(link):
     }
 
 
-# 解析 VLESS 链接
+# 解析 VLESS 链接（支持 ws/grpc/xhttp/reality 等）
 def parse_vless_link(link):
-    link = link[8:]
-    config_part, name = link.split('#')
-    user_info, host_info = config_part.split('@')
-    uuid = user_info
-    host, query = host_info.split('?', 1) if '?' in host_info else (host_info, "")
-    port = host.split(':')[-1] if ':' in host else ""
-    host = host.split(':')[0] if ':' in host else ""
-    return {
-        "name": urllib.parse.unquote(name),
-        "type": "vless",
-        "server": host,
-        "port": int(port),
-        "uuid": uuid,
-        "security": urllib.parse.parse_qs(query).get("security", ["none"])[0],
-        "tls": urllib.parse.parse_qs(query).get("security", ["none"])[0] == "tls",
-        "sni": urllib.parse.parse_qs(query).get("sni", [""])[0],
-        "skip-cert-verify": urllib.parse.parse_qs(query).get("skip-cert-verify", ["false"])[0] == "true",
-        "network": urllib.parse.parse_qs(query).get("type", ["tcp"])[0],
-        "ws-opts": {
-            "path": urllib.parse.parse_qs(query).get("path", [""])[0],
-            "headers": {
-                "Host": urllib.parse.parse_qs(query).get("host", [""])[0]
+    try:
+        link = link[8:]
+        if '#' in link:
+            config_part, name = link.split('#', 1)
+        else:
+            config_part, name = link, "vless"
+        name = urllib.parse.unquote(name)
+        if '@' in config_part:
+            user_info, host_info = config_part.split('@', 1)
+        else:
+            return None
+        uuid = user_info
+        host, query = host_info.split('?', 1) if '?' in host_info else (host_info, "")
+        port = host.split(':')[-1] if ':' in host else ""
+        server = host.split(':')[0] if ':' in host else ""
+
+        params = urllib.parse.parse_qs(query)
+        security = params.get("security", ["none"])[0]
+        network_type = params.get("type", ["tcp"])[0]
+        flow = params.get("flow", [""])[0]
+
+        result = {
+            "name": name,
+            "type": "vless",
+            "server": server,
+            "port": int(port) if port else 443,
+            "uuid": uuid,
+            "tls": security in ("tls", "reality"),
+            "skip-cert-verify": params.get("skip-cert-verify", ["false"])[0] == "true",
+            "network": network_type,
+        }
+
+        # flow (xtls-rprx-vision 等)
+        if flow:
+            result["flow"] = flow
+
+        # security 相关
+        if security == "reality":
+            result["reality-opts"] = {
+                "public-key": params.get("pbk", [""])[0],
+                "short-id": params.get("sid", [""])[0],
             }
-        } if urllib.parse.parse_qs(query).get("type", ["tcp"])[0] == "ws" else {}
-    }
+            if params.get("fp", [""])[0]:
+                result["client-fingerprint"] = params.get("fp", [""])[0]
+        elif security == "tls":
+            if params.get("fp", [""])[0]:
+                result["client-fingerprint"] = params.get("fp", [""])[0]
+
+        # sni
+        sni = params.get("sni", [""])[0]
+        if sni:
+            result["sni"] = sni
+
+        # alpn
+        alpn = params.get("alpn", [""])[0]
+        if alpn:
+            result["alpn"] = alpn.split(",")
+
+        # network opts
+        if network_type == "ws":
+            ws_opts = {}
+            path = params.get("path", [""])[0]
+            if path:
+                ws_opts["path"] = path
+            host_hdr = params.get("host", [""])[0]
+            if host_hdr:
+                ws_opts["headers"] = {"Host": host_hdr}
+            if ws_opts:
+                result["ws-opts"] = ws_opts
+        elif network_type == "grpc":
+            grpc_opts = {}
+            service_name = params.get("serviceName", [""])[0]
+            if service_name:
+                grpc_opts["grpc-service-name"] = service_name
+            mode = params.get("mode", [""])[0]
+            if mode:
+                grpc_opts["grpc-mode"] = mode
+            if grpc_opts:
+                result["grpc-opts"] = grpc_opts
+        elif network_type == "xhttp":
+            # Clash Meta (mihomo) xhttp 支持
+            xhttp_opts = {}
+            path = params.get("path", [""])[0]
+            if path:
+                xhttp_opts["path"] = path
+            host_hdr = params.get("host", [""])[0]
+            if host_hdr:
+                xhttp_opts["headers"] = {"Host": host_hdr}
+            mode = params.get("mode", ["auto"])[0]
+            xhttp_opts["xhttp-mode"] = mode
+            # xhttp 支持的额外参数
+            extra = params.get("extra", [""])[0]
+            if extra:
+                xhttp_opts["xhttp-extra"] = extra
+            result["xhttp-opts"] = xhttp_opts
+
+        return result
+    except Exception as e:
+        return None
 
 
 # 解析 VMESS 链接
@@ -1588,7 +1663,7 @@ def match_nodes(text):
 def process_url(url):
     isyaml = False
     try:
-        response = requests.get(url, headers=headers, verify=False, allow_redirects=True, timeout=15)
+        response = requests.get(url, headers=headers, verify=False, allow_redirects=True, timeout=8)
         if response.status_code == 200:
             content_text = safe_decode(response.content)
             if 'proxies:' in content_text:
@@ -2039,7 +2114,47 @@ def handle_links(new_links, resolve_name_conflicts):
         pass
 
 
-# 生成 Clash 配置文件
+# 并发下载单个订阅URL
+def fetch_sub_url(url):
+    """并发下载订阅URL，返回解析后的节点列表或链接列表"""
+    is_proxy_link = url.strip().startswith((
+        "hysteria2://", "hy2://", "quic://", "hysteria://", "snell://",
+        "naive+https://", "naive+quic://", "naive://", "tuic://",
+        "warp://", "wg://", "trojan://", "ss://", "ssr://", "vless://", "vmess://"
+    ))
+    if is_proxy_link:
+        return ("proxy", url, None)
+
+    # 特殊标记链接
+    if '|links' in url or '.md' in url:
+        clean_url = url.replace('|links', '')
+        try:
+            new_links = parse_md_link(clean_url)
+            return ("links", new_links, None)
+        except Exception:
+            return ("error", url, None)
+
+    if '|ss' in url:
+        clean_url = url.replace('|ss', '')
+        try:
+            new_links = parse_ss_sub(clean_url)
+            return ("ss_sub", new_links, None)
+        except Exception:
+            return ("error", url, None)
+
+    # 模板URL
+    if '{' in url:
+        url = resolve_template_url(url)
+
+    # 普通订阅URL
+    try:
+        new_links, isyaml = process_url(url)
+        return ("yaml" if isyaml else "links", new_links, None)
+    except Exception as e:
+        return ("error", url, str(e))
+
+
+# 生成 Clash 配置文件（并发优化版）
 def generate_clash_config(links, load_nodes):
     now = datetime.now()
     print(f"当前时间: {now}\n---")
@@ -2065,36 +2180,35 @@ def generate_clash_config(links, load_nodes):
     for node in load_nodes:
         resolve_name_conflicts(node)
 
-    for link in links:
-        if link.startswith(("hysteria2://", "hy2://", "quic://", "hysteria://", "snell://", "naive+https://", "naive+quic://", "naive://", "tuic://", "warp://", "wg://", "trojan://", "ss://", "ssr://", "vless://", "vmess://")):
-            node = parse_proxy_link(link)
-            if not node:
-                continue
-            resolve_name_conflicts(node)
-        else:
-            if '|links' in link or '.md' in link:
-                link = link.replace('|links', '')
-                new_links = parse_md_link(link)
-                handle_links(new_links, resolve_name_conflicts)
-            if '|ss' in link:
-                link = link.replace('|ss', '')
-                new_links = parse_ss_sub(link)
-                for node in new_links:
-                    resolve_name_conflicts(node)
-            if '{' in link:
-                link = resolve_template_url(link)
-            print(f'当前正在处理link: {link}')
-            # 处理非特定协议的链接
+    # ===== 并发下载所有订阅URL =====
+    total_links = len(links)
+    print(f'共 {total_links} 个订阅源，开始并发下载 (并发数: {MAX_CONCURRENT_SUBS})...')
+    completed = 0
+    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_SUBS) as executor:
+        futures = {executor.submit(fetch_sub_url, link): link for link in links}
+        for future in as_completed(futures):
+            url = futures[future]
+            completed += 1
             try:
-                new_links, isyaml = process_url(link)
+                result_type, result_data, error = future.result()
+                if result_type == "proxy":
+                    node = parse_proxy_link(result_data)
+                    if node:
+                        resolve_name_conflicts(node)
+                elif result_type == "links":
+                    handle_links(result_data, resolve_name_conflicts)
+                elif result_type == "ss_sub":
+                    for node in result_data:
+                        resolve_name_conflicts(node)
+                elif result_type == "yaml":
+                    for node in result_data:
+                        resolve_name_conflicts(node)
+                elif result_type == "error":
+                    pass  # 静默跳过失败链接
+                if completed % 10 == 0 or completed == total_links:
+                    print(f'  进度: {completed}/{total_links} ({completed/total_links*100:.0f}%)')
             except Exception as e:
-                print(f"error: {e}")
-                continue
-            if isyaml:
-                for node in new_links:
-                    resolve_name_conflicts(node)
-            else:
-                handle_links(new_links, resolve_name_conflicts)
+                pass  # 静默跳过异常
     final_nodes = deduplicate_proxies(final_nodes)
     # 重置group中节点name
     config["proxy-groups"][1]["proxies"] = []
@@ -2196,7 +2310,7 @@ def handle_clash_error(error_message, config_file_path):
 # 下载最新mihomo
 def download_and_extract_latest_release():
     url = "https://api.github.com/repos/MetaCubeX/mihomo/releases/latest"
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
 
     if response.status_code != 200:
         print("Failed to retrieve data")
@@ -2943,17 +3057,23 @@ def start_download_test(proxy_names, speed_limit=0.1):
     return sorted_proxy_names
 
 
-# 测试所有代理节点的下载速度，并排序结果
+# 测试所有代理节点的下载速度（多线程并发版）
 def test_all_proxies(proxy_names):
     try:
-        # 单线程节点速度下载测试
         i = 0
-        for proxy_name in proxy_names:
-            i += 1
-            print(f"\r正在测速节点【{i}】: {proxy_name}", flush=True, end='')
+        lock = threading.Lock()
+        def test_one(proxy_name):
+            nonlocal i
+            with lock:
+                i += 1
+                idx = i
+            print(f"\r正在测速节点【{idx}/{len(proxy_names)}】: {proxy_name[:30]}", flush=True, end='')
             test_proxy_speed(proxy_name)
 
-        print("\r" + " " * 50 + "\r", end='')  # 清空行并返回行首
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            list(executor.map(test_one, proxy_names))
+
+        print("\r" + " " * 50 + "\r", end='') # 清空行并返回行首
     except Exception as e:
         print(f"测试节点速度时出错: {e}")
 
