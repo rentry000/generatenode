@@ -23,6 +23,7 @@ import shutil
 import platform
 import os
 from datetime import datetime
+import hashlib
 from asyncio import Semaphore
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import ssl
@@ -39,6 +40,62 @@ try:
     nest_asyncio.apply()
 except ImportError:
     pass  # nest_asyncio未安装时忽略，js_render中将使用子进程替代
+
+# ========== cache system ==========
+CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".clashforge_cache")
+SUB_CACHE_FILE = os.path.join(CACHE_DIR, "sub_cache.json")
+DELAY_CACHE_FILE = os.path.join(CACHE_DIR, "delay_cache.json")
+CHECKPOINT_FILE = os.path.join(CACHE_DIR, "checkpoint.json")
+CACHE_EXPIRE_HOURS = 6
+BATCH_SIZE = 5000
+USE_CACHE = True
+FORCE_REFRESH = False
+
+def ensure_cache_dir():
+    os.makedirs(CACHE_DIR, exist_ok=True)
+
+def load_json_cache(filepath):
+    if not os.path.exists(filepath):
+        return {}
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def save_json_cache(filepath, data):
+    ensure_cache_dir()
+    try:
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
+    except Exception as e:
+        print(f"cache write error: {e}")
+
+def is_cache_valid(cache_entry, expire_hours=CACHE_EXPIRE_HOURS):
+    if not cache_entry or "timestamp" not in cache_entry:
+        return False
+    cached_time = cache_entry.get("timestamp", 0)
+    return (time.time() - cached_time) < (expire_hours * 3600)
+
+def load_checkpoint():
+    cp = load_json_cache(CHECKPOINT_FILE)
+    if cp and is_cache_valid(cp, expire_hours=24):
+        return cp
+    return {}
+
+def save_checkpoint(stage, data):
+    cp = load_checkpoint()
+    cp["stage"] = stage
+    cp["data"] = data
+    cp["timestamp"] = time.time()
+    save_json_cache(CHECKPOINT_FILE, cp)
+
+def clear_cache():
+    for f in [SUB_CACHE_FILE, DELAY_CACHE_FILE, CHECKPOINT_FILE]:
+        if os.path.exists(f):
+            os.remove(f)
+    print("cache cleared")
+
 
 
 def safe_decode(data, encodings=None):
@@ -65,8 +122,8 @@ TIMEOUT = 3
 SPEED_TEST = False
 SPEED_TEST_LIMIT = 5  # 只测试前30个节点的下行速度，每个节点测试5秒
 results_speed = []
-MAX_CONCURRENT_TESTS = 100
-MAX_CONCURRENT_SUBS = 50  # 并发下载订阅源数量
+MAX_CONCURRENT_TESTS = 100  # 延迟测试并发数（线程池模式）
+MAX_CONCURRENT_SUBS = 100 # 并发下载订阅源数量
 LIMIT = 10000  # 最多保留LIMIT个节点
 CONFIG_FILE = 'clash_config.yaml'
 INPUT = "input"  # 从文件中加载代理节点，支持yaml/yml、txt(每条代理链接占一行)
@@ -2114,9 +2171,17 @@ def handle_links(new_links, resolve_name_conflicts):
         pass
 
 
-# 并发下载单个订阅URL
+# 并发下载单个订阅URL（带缓存）
 def fetch_sub_url(url):
-    """并发下载订阅URL，返回解析后的节点列表或链接列表"""
+    """并发下载订阅URL，返回解析后的节点列表或链接列表，支持缓存"""
+    # 检查缓存
+    if USE_CACHE and not FORCE_REFRESH:
+        sub_cache = load_json_cache(SUB_CACHE_FILE)
+        url_hash = hashlib.md5(url.encode()).hexdigest()
+        cached = sub_cache.get(url_hash)
+        if cached and is_cache_valid(cached):
+            return (cached.get('type', 'error'), cached.get('data'), None)
+
     is_proxy_link = url.strip().startswith((
         "hysteria2://", "hy2://", "quic://", "hysteria://", "snell://",
         "naive+https://", "naive+quic://", "naive://", "tuic://",
@@ -2130,17 +2195,24 @@ def fetch_sub_url(url):
         clean_url = url.replace('|links', '')
         try:
             new_links = parse_md_link(clean_url)
-            return ("links", new_links, None)
+            result = ("links", new_links, None)
         except Exception:
-            return ("error", url, None)
+            result = ("error", url, None)
+        # 缓存结果
+        if USE_CACHE and result[0] != "error":
+            _cache_sub_result(url, result[0], result[1])
+        return result
 
     if '|ss' in url:
         clean_url = url.replace('|ss', '')
         try:
             new_links = parse_ss_sub(clean_url)
-            return ("ss_sub", new_links, None)
+            result = ("ss_sub", new_links, None)
         except Exception:
-            return ("error", url, None)
+            result = ("error", url, None)
+        if USE_CACHE and result[0] != "error":
+            _cache_sub_result(url, result[0], result[1])
+        return result
 
     # 模板URL
     if '{' in url:
@@ -2149,9 +2221,28 @@ def fetch_sub_url(url):
     # 普通订阅URL
     try:
         new_links, isyaml = process_url(url)
-        return ("yaml" if isyaml else "links", new_links, None)
+        result = ("yaml" if isyaml else "links", new_links, None)
     except Exception as e:
-        return ("error", url, str(e))
+        result = ("error", url, str(e))
+    # 缓存结果
+    if USE_CACHE and result[0] != "error":
+        _cache_sub_result(url, result[0], result[1])
+    return result
+
+def _cache_sub_result(url, result_type, data):
+    """缓存订阅下载结果"""
+    sub_cache = load_json_cache(SUB_CACHE_FILE)
+    url_hash = hashlib.md5(url.encode()).hexdigest()
+    # 对于proxy类型不缓存（太短），对于节点列表缓存摘要
+    if result_type == "proxy":
+        return
+    sub_cache[url_hash] = {
+        'type': result_type,
+        'data': data,
+        'timestamp': time.time(),
+        'url': url
+    }
+    save_json_cache(SUB_CACHE_FILE, sub_cache)
 
 
 # 生成 Clash 配置文件（并发优化版）
@@ -2209,7 +2300,11 @@ def generate_clash_config(links, load_nodes):
                     print(f'  进度: {completed}/{total_links} ({completed/total_links*100:.0f}%)')
             except Exception as e:
                 pass  # 静默跳过异常
+    print(f'解析完成，共 {len(final_nodes)} 个节点(去重前)')
     final_nodes = deduplicate_proxies(final_nodes)
+    print(f'去重后 {len(final_nodes)} 个节点')
+    if len(final_nodes) > LIMIT * 2:
+        print(f'节点数过多({len(final_nodes)}), 将在延迟测试后保留最优 {LIMIT} 个')
     # 重置group中节点name
     config["proxy-groups"][1]["proxies"] = []
     for node in final_nodes:
@@ -2746,25 +2841,90 @@ def print_test_summary(group_name: str, results: List[ProxyTestResult]):
     return delays
 
 
-# 测试一组代理节点
-async def test_group_proxies(clash_api: ClashAPI, proxies: List[str]) -> List[ProxyTestResult]:
-    """测试一组代理节点"""
-    print(f"开始测试 {len(proxies)} 个节点 (最大并发: {MAX_CONCURRENT_TESTS})")
+# 测试一组代理节点（多线程高并发版，替代原有async版本）
+def test_group_proxies_threaded(proxies: List[str]) -> List[ProxyTestResult]:
+    """使用线程池高并发测试代理节点延迟，支持断点续传和增量缓存"""
+    print(f"开始测试 {len(proxies)} 个节点 (最大并发: {MAX_CONCURRENT_TESTS}, 分批大小: {BATCH_SIZE})")
 
-    # 创建所有测试任务
-    tasks = [clash_api.test_proxy_delay(proxy_name) for proxy_name in proxies]
+    api_base = f"http://{CLASH_API_HOST}:{CLASH_API_PORTS[0]}"
+    api_headers = {
+        "Authorization": f"Bearer {CLASH_API_SECRET}" if CLASH_API_SECRET else "",
+        "Content-Type": "application/json",
+        'User-Agent': 'Clash Verge/1.7.7'
+    }
 
-    # 使用进度显示执行所有任务
-    results = []
-    for future in asyncio.as_completed(tasks):
-        result = await future
-        results.append(result)
-        # 显示进度
-        done = len(results)
-        total = len(tasks)
-        print(f"\r进度: {done}/{total} ({done / total * 100:.1f}%)", end="", flush=True)
+    # 加载延迟缓存
+    delay_cache = load_json_cache(DELAY_CACHE_FILE) if USE_CACHE else {}
 
+    # 分离已缓存和未缓存的节点
+    cached_results = []
+    untested_proxies = []
+    for name in proxies:
+        cache_key = hashlib.md5(name.encode()).hexdigest()
+        cached_entry = delay_cache.get(cache_key)
+        if cached_entry and is_cache_valid(cached_entry, expire_hours=1) and not FORCE_REFRESH:
+            delay = cached_entry.get('delay')
+            cached_results.append(ProxyTestResult(name, delay))
+        else:
+            untested_proxies.append(name)
+
+    if cached_results:
+        print(f'从缓存加载 {len(cached_results)} 个节点延迟结果，需测试 {len(untested_proxies)} 个')
+
+    if not untested_proxies:
+        print('所有节点延迟结果已缓存，跳过测试')
+        return cached_results
+
+    results = list(cached_results)
+    lock = threading.Lock()
+    completed = [0]
+    total = len(untested_proxies)
+    batch_results = []
+
+    def test_one(proxy_name):
+        try:
+            url = f"{api_base}/proxies/{urllib.parse.quote(proxy_name, safe='')}/delay"
+            params = {"url": TEST_URL, "timeout": int(TIMEOUT * 1000)}
+            resp = requests.get(url, headers=api_headers, params=params, timeout=TIMEOUT + 2)
+            resp.raise_for_status()
+            delay = resp.json().get("delay")
+            return ProxyTestResult(proxy_name, delay)
+        except Exception:
+            return ProxyTestResult(proxy_name)
+
+    def test_one_wrapper(proxy_name):
+        result = test_one(proxy_name)
+        with lock:
+            results.append(result)
+            batch_results.append(result)
+            completed[0] += 1
+            done = completed[0]
+            if done % 50 == 0 or done == total:
+                print(f"\r进度: {done}/{total} ({done/total*100:.1f}%)", end="", flush=True)
+            # 每完成一批就写缓存+断点
+            if len(batch_results) >= BATCH_SIZE or done == total:
+                _flush_delay_cache(batch_results, delay_cache)
+                save_checkpoint('delay_test', {'completed': done, 'total': total})
+                batch_results.clear()
+        return result
+
+    with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_TESTS) as executor:
+        list(executor.map(test_one_wrapper, untested_proxies))
+
+    print()
     return results
+
+
+def _flush_delay_cache(batch_results, delay_cache):
+    """将一批延迟测试结果刷新到缓存"""
+    for r in batch_results:
+        cache_key = hashlib.md5(r.name.encode()).hexdigest()
+        delay_cache[cache_key] = {
+            'name': r.name,
+            'delay': r.delay if r.is_valid else None,
+            'timestamp': time.time()
+        }
+    save_json_cache(DELAY_CACHE_FILE, delay_cache)
 
 
 async def proxy_clean():
@@ -2776,8 +2936,16 @@ async def proxy_clean():
     print(f"配置文件: {CONFIG_FILE}")
     print(f"API 端口: {CLASH_API_PORTS[0]}")
     print(f"并发数量: {MAX_CONCURRENT_TESTS}")
+    print(f"分批大小: {BATCH_SIZE}")
     print(f"超时时间: {TIMEOUT}秒")
     print(f"保留节点：最多保留{LIMIT}个延迟最小的有效节点")
+    print(f"增量缓存: {'开启' if USE_CACHE else '关闭'}")
+    # 显示缓存状态
+    if USE_CACHE:
+        sub_cache = load_json_cache(SUB_CACHE_FILE)
+        delay_cache = load_json_cache(DELAY_CACHE_FILE)
+        print(f"订阅缓存: {len(sub_cache)} 条")
+        print(f"延迟缓存: {len(delay_cache)} 条")
 
     # 加载配置
     print(f'加载配置文件{CONFIG_FILE}')
@@ -2801,27 +2969,22 @@ async def proxy_clean():
     # 开始测试
     start_time = datetime.now()
 
-    # 创建支持多端口的API实例
-    async with ClashAPI(CLASH_API_HOST, CLASH_API_PORTS, CLASH_API_SECRET) as clash_api:
-        if not await clash_api.check_connection():
-            return
+    try:
+        all_test_results = [] # 收集所有测试结果
 
-        try:
-            all_test_results = []  # 收集所有测试结果
+        # 测试策略组，只需要测试其中一个即可
+        group_name = groups_to_test[0]
+        print(f"\n======================== 开始测试策略组: {group_name} ====================")
+        proxies = config.get_group_proxies(group_name)
 
-            # 测试策略组，只需要测试其中一个即可
-            group_name = groups_to_test[0]
-            print(f"\n======================== 开始测试策略组: {group_name} ====================")
-            proxies = config.get_group_proxies(group_name)
-
-            if not proxies:
-                print(f"策略组 '{group_name}' 中没有代理节点")
-            else:
-                # 测试该组的所有节点
-                results = await test_group_proxies(clash_api, proxies)
-                all_test_results.extend(results)
-                # 打印测试结果摘要
-                delays = print_test_summary(group_name, results)
+        if not proxies:
+            print(f"策略组 '{group_name}' 中没有代理节点")
+        else:
+            # 使用多线程高并发测试（无需async ClashAPI）
+            results = test_group_proxies_threaded(proxies)
+            all_test_results.extend(results)
+            # 打印测试结果摘要
+            delays = print_test_summary(group_name, results)
 
             print('\n===================移除失效节点并按延迟排序======================\n')
             # 一次性移除所有失效节点并更新配置
@@ -2869,15 +3032,15 @@ async def proxy_clean():
                 # 保存更新后的配置
                 config.save()
 
-            # 显示总耗时
-            total_time = (datetime.now() - start_time).total_seconds()
-            print(f"\n总耗时: {total_time:.2f} 秒")
-            return delays
-        except ClashAPIException as e:
-            print(f"Clash API 错误: {e}")
-        except Exception as e:
-            print(f"发生错误: {e}")
-            raise
+        # 显示总耗时
+        total_time = (datetime.now() - start_time).total_seconds()
+        print(f"\n总耗时: {total_time:.2f} 秒")
+        return delays
+    except ClashAPIException as e:
+        print(f"Clash API 错误: {e}")
+    except Exception as e:
+        print(f"发生错误: {e}")
+        raise
 
 
 # 获取当前时间的各个组成部分
@@ -3070,7 +3233,7 @@ def test_all_proxies(proxy_names):
             print(f"\r正在测速节点【{idx}/{len(proxy_names)}】: {proxy_name[:30]}", flush=True, end='')
             test_proxy_speed(proxy_name)
 
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        with ThreadPoolExecutor(max_workers=5) as executor:
             list(executor.map(test_one, proxy_names))
 
         print("\r" + " " * 50 + "\r", end='') # 清空行并返回行首
@@ -3092,15 +3255,15 @@ def test_proxy_speed(proxy_name):
     start_time = time.time()
     # 计算总下载量
     total_length = 0
-    # 测试下载时间（秒）
-    test_duration = 5  # 逐块下载，直到达到5秒钟为止
+    # 测试下载时间（秒）- 缩短到1秒加快速度
+    test_duration = 1 # 逐块下载，直到达到1秒钟为止
 
     # 不断发起请求直到达到时间限制
     while time.time() - start_time < test_duration:
         try:
             response = requests.get("http://speedtest.tele2.net/100MB.zip", stream=True, proxies=proxies,
                                     headers={'Cache-Control': 'no-cache'},
-                                    timeout=test_duration)
+                                    timeout=8)
             for data in response.iter_content(chunk_size=524288):
                 total_length += len(data)
                 if time.time() - start_time >= test_duration:
@@ -3207,7 +3370,7 @@ def work(links, check=False, allowed_types=[], only_check=False):
                 clash_process = start_clash()
                 # 切换节点到'节点选择-DIRECT'
                 switch_proxy('DIRECT')
-                asyncio.run(proxy_clean())
+                asyncio.run(proxy_clean())  # 兼容async声明，实际内部已改为线程池
                 print(f'批量检测完毕')
             except Exception as e:
                 print("Error calling Clash API:", e)
@@ -4118,4 +4281,11 @@ if __name__ == '__main__':
 "https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/voken100g/_recent.yaml",
 "https://raw.githubusercontent.com/asgharkapk/Sub-Config-Extractor/refs/heads/main/output_configs/clash/10ium/HiN-VPN/subscription/source/base64/speeds_vpn1.yaml"
     ]
+    # 命令行参数: --clear-cache 清除缓存, --force-refresh 强制刷新
+    if '--clear-cache' in sys.argv:
+        clear_cache()
+        print('缓存已清除，将从头开始')
+    if '--force-refresh' in sys.argv:
+        FORCE_REFRESH = True
+        print('强制刷新模式：忽略所有缓存')
     work(links, check=True, only_check=False, allowed_types=["ss", "hysteria2", "hy2", "vless", "vmess", "trojan", "tuic", "wireguard", "hysteria", "snell", "naive"])
