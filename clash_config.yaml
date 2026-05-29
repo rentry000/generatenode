@@ -193,14 +193,6 @@ proxies:
   password: EXN3S3eQpjE7EJu8
   cipher: aes-256-cfb
   delay: 627
-- name: 波兰 - 华沙 - 18
-  server: 217.30.10.70
-  type: ss
-  country: 🇵🇱PL
-  port: 9015
-  password: ZpNDDKRu9MagNvaf
-  cipher: aes-256-cfb
-  delay: 737
 - name: 波兰 - 华沙 - 19
   server: 217.30.10.70
   type: ss
@@ -233,14 +225,6 @@ proxies:
   password: BwcAUZk8hUFAkDGN
   cipher: aes-256-cfb
   delay: 614
-- name: 波兰 - 华沙 - 8
-  server: 217.30.10.70
-  type: ss
-  country: 🇵🇱PL
-  port: 9026
-  password: QWDDvVE9npNurQfA
-  cipher: aes-256-cfb
-  delay: 696
 - name: 日本2
   server: jpgmo102-cdn-route.couldflare-cdn.com
   port: 443
@@ -361,12 +345,6 @@ proxies:
   type: ss
   cipher: aes-128-gcm
   password: shadowsocks
-- name: 🇳🇱NL-213.109.147.242-0250
-  server: 213.109.147.242
-  port: 62685
-  type: ss
-  cipher: chacha20-ietf-poly1305
-  password: VpKABcOpNNA0l5G2AVOmw8
 - name: IT_Siziano_Oracle Corporation_Claude1
   network: tcp
   port: 10086
@@ -374,56 +352,6 @@ proxies:
   type: vless
   udp: true
   uuid: 9f0285ee-20ca-4953-bcdb-86a920652923
-- name: HK香港(mibei77.com 米贝节点分享)_8-ewOg
-  type: vless
-  server: 219.76.13.166
-  port: 443
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  network: ws
-  servername: sn1.skylee5.cloudns.ch
-  tls: true
-  ws-opts:
-    path: /proxyip=ProxyIP.CMLiussss.net
-    headers:
-      Host: sn1.skylee5.cloudns.ch
-- name: HK香港(mibei77.com 米贝节点分享)_9-wPpf
-  type: vless
-  server: 219.76.13.167
-  port: 443
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  network: ws
-  servername: sn1.skylee5.cloudns.ch
-  tls: true
-  ws-opts:
-    path: /proxyip=ProxyIP.CMLiussss.net
-    headers:
-      Host: sn1.skylee5.cloudns.ch
-- name: '[OpenRay] Dynamic-17039'
-  type: vless
-  server: gxb.pages.dev
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  network: ws
-  tls: true
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: GxB.PAgES.DEv
-  udp: true
-  skip-cert-verify: false
-- name: '[OpenRay] Dynamic-17041'
-  type: vless
-  server: worker-5n2.pages.dev
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  network: ws
-  tls: true
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: wOrker-5N2.pAgeS.DEv
-  udp: true
-  skip-cert-verify: false
 - name: 中文官网：[卷王.cc]-加拿大 -0x-02
   type: vmess
   server: 134.195.196.211
@@ -434,21 +362,6 @@ proxies:
   tls: false
   network: tcp
   client-fingerprint: chrome
-  udp: true
-  skip-cert-verify: false
-- name: 中文官网：[卷王.cc]-韩国 -0x-03
-  type: vless
-  server: 104.16.213.194
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  network: ws
-  tls: true
-  servername: SaIWaI6.Pages.dEv
-  client-fingerprint: chrome
-  ws-opts:
-    path: /fp=randomized
-    headers:
-      Host: saiWAi6.Pages.dev
   udp: true
   skip-cert-verify: false
 - name: 中文官网：[卷王.cc]-韩国 -0x-01
@@ -517,14 +430,6 @@ proxies:
       Host: up2-df6.pages.dev
   udp: true
   skip-cert-verify: false
-- name: '[OpenRay] 🇬🇧 GB-868'
-  type: ss
-  server: 138.68.153.223
-  port: 46576
-  cipher: chacha20-ietf-poly1305
-  password: idMvoewrSyLLvEvP03k9zR
-  udp: true
-  skip-cert-verify: false
 - name: '[OpenRay] 🇬🇧 GB-673'
   type: vmess
   server: 66.163.117.58
@@ -555,32 +460,6 @@ proxies:
   password: RexnBgU7EV5ADxG
   udp: true
   skip-cert-verify: false
-- name: '[OpenRay] Dynamic-17042'
-  type: vless
-  server: xizi-bo8.pages.dev
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  network: ws
-  tls: true
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: xIZI-BO8.PagES.dEv
-  udp: true
-  skip-cert-verify: false
-- name: '[OpenRay] Dynamic-17040'
-  type: vless
-  server: saiwai6.pages.dev
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  network: ws
-  tls: true
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: SaiWaI6.pAGEs.DEV
-  udp: true
-  skip-cert-verify: false
 - name: 中文官网：[卷王.cc]-美国 -0x-06
   type: vmess
   server: 169.197.142.22
@@ -591,19 +470,6 @@ proxies:
   tls: false
   network: tcp
   client-fingerprint: chrome
-  udp: true
-  skip-cert-verify: false
-- name: '[OpenRay] Dynamic-17032'
-  type: vless
-  server: 1-442.pages.dev
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  network: ws
-  tls: true
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: 1-442.pagEs.dev
   udp: true
   skip-cert-verify: false
 - name: '[OpenRay] 🇮🇹 IT-49'
@@ -645,48 +511,6 @@ proxies:
   port: 8080
   cipher: chacha20-ietf-poly1305
   password: oZIoA69Q8yhcQV8ka3Pa3A
-  udp: true
-  skip-cert-verify: false
-- name: '[OpenRay] 🇺🇸 US-15054'
-  type: vless
-  server: 154.21.95.34
-  port: 443
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  network: ws
-  tls: true
-  servername: sn1.skylee5.cloudns.ch
-  ws-opts:
-    path: /proxyip=proxyip.cmliussss.net
-    headers:
-      Host: sn1.skylee5.cloudns.ch
-  udp: true
-  skip-cert-verify: false
-- name: '[OpenRay] 🇺🇸 US-15050'
-  type: vless
-  server: 154.17.4.159
-  port: 2053
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  network: ws
-  tls: true
-  servername: sn1.skylee5.cloudns.ch
-  ws-opts:
-    path: /proxyip=proxyip.cmliussss.net
-    headers:
-      Host: sn1.skylee5.cloudns.ch
-  udp: true
-  skip-cert-verify: false
-- name: '[OpenRay] 🇺🇸 US-15046'
-  type: vless
-  server: 64.186.240.9
-  port: 8443
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  network: ws
-  tls: true
-  servername: sn1.skylee5.cloudns.ch
-  ws-opts:
-    path: /proxyip=proxyip.cmliussss.net
-    headers:
-      Host: sn1.skylee5.cloudns.ch
   udp: true
   skip-cert-verify: false
 - name: 中文官网：[卷王.cc]-日本 -0x-01
@@ -2902,146 +2726,6 @@ proxies:
   - http/1.1
   client-fingerprint: random
   skip-cert-verify: false
-- name: CF中转_0420101176
-  type: vless
-  server: 104.16.105.215
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: GxB.PaGeS.dev
-- name: CF中转_0420101354
-  type: vless
-  server: 104.17.177.228
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: woRKEr-5n2.Pages.dev
-- name: CF中转_0420101363
-  type: vless
-  server: 172.66.44.134
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: Xizi-bo8.pAGEs.dEv
-- name: CF中转_0420101365
-  type: vless
-  server: 172.66.44.136
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: 1-442.pAgEs.Dev
-- name: CF中转_0420101366
-  type: vless
-  server: 172.66.44.52
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: gxB.Pages.DeV
-- name: CF中转_0420101367
-  type: vless
-  server: 172.66.46.252
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: wORkeR-5n2.PAges.dEV
-- name: CF中转_0420101368
-  type: vless
-  server: 172.66.47.120
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: 1-442.PaGEs.DEv
-- name: CF中转_0420101370
-  type: vless
-  server: 172.66.47.122
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: xizI-BO8.PaGEs.dEv
-- name: CF中转_0420101376
-  type: vless
-  server: 172.66.47.170
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: SaIwAI6.Pages.dEV
-- name: CF中转_0420101377
-  type: vless
-  server: 172.66.47.204
-  port: 443
-  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
-  security: tls
-  tls: true
-  sni: ''
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /%2F
-    headers:
-      Host: gXb.pagES.dev
 - name: CF中转_0420102499
   type: vless
   server: 104.21.12.1
@@ -3249,48 +2933,6 @@ proxies:
   skip-cert-verify: false
   network: http
   ws-opts: {}
-- name: 新加坡_042010290
-  type: vless
-  server: 38.180.9.18
-  port: 8443
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  security: tls
-  tls: true
-  sni: sn1.skylee5.cloudns.ch
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: sn1.skylee5.cloudns.ch
-- name: 新加坡_042010292
-  type: vless
-  server: 38.180.9.18
-  port: 2053
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  security: tls
-  tls: true
-  sni: sn1.skylee5.cloudns.ch
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: sn1.skylee5.cloudns.ch
-- name: 新加坡_042010297
-  type: vless
-  server: 143.42.66.91
-  port: 443
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  security: tls
-  tls: true
-  sni: sn1.skylee5.cloudns.ch
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /
-    headers:
-      Host: sn1.skylee5.cloudns.ch
 - name: 未知_0420101539
   type: vless
   server: cf.0sm.com
@@ -3333,34 +2975,6 @@ proxies:
     path: /IIzL1WWUU9UXREpj
     headers:
       Host: up2-df6.pages.dev
-- name: 香港_042010033
-  type: vless
-  server: 219.76.13.169
-  port: 443
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  security: tls
-  tls: true
-  sni: sn1.skylee5.cloudns.ch
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /proxyip=proxyip.cmliussss.net
-    headers:
-      Host: sn1.skylee5.cloudns.ch
-- name: 香港_042010034
-  type: vless
-  server: 219.76.13.180
-  port: 443
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  security: tls
-  tls: true
-  sni: sn1.skylee5.cloudns.ch
-  skip-cert-verify: false
-  network: ws
-  ws-opts:
-    path: /proxyip=proxyip.cmliussss.net
-    headers:
-      Host: sn1.skylee5.cloudns.ch
 proxy-groups:
 - name: 节点选择
   type: select
@@ -3373,225 +2987,195 @@ proxy-groups:
   type: url-test
   exclude-filter: (?i)中国|China|CN|电信|移动|联通
   proxies:
-  - '9'
-  - 💦 34 - VLESS - Clean IP - 2053
-  - 💦 25 - VLESS - Domain - 2053
-  - 💦 3 - VLESS - IPv4 - 443
-  - 💦 17 - VLESS - Clean IP - 443
-  - 💦 31 - VLESS - Clean IP - 2053
-  - 💦 25 - Trojan - Domain - 2053
-  - CF中转_0420102499
-  - 💦 13 - Trojan - Clean IP - 443
-  - 💦 20 - VLESS - Clean IP - 443
-  - CF中转_042010462
-  - 💦 32 - Trojan - Clean IP - 2053
-  - 💦 14 - Trojan - Clean IP - 443
-  - 🇨🇦CA-137.184.174.93-0196
-  - CF中转_042010452
-  - CF中转_0420101370
-  - 🇺🇸US-156.146.38.167-0163
   - 🇺🇸US-37.19.198.243-0224
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_bdf026a4
   - 🇺🇸US-37.19.198.236-0199
   - 🇺🇸US-37.19.198.160-0213
-  - CF中转_0420101377
-  - 💦 37 - Trojan - Clean IP - 2053
-  - CF中转_0420101365
-  - 💦 43 - VLESS - Clean IP - 2053
-  - 💦 39 - Trojan - Clean IP - 2053
-  - 中文官网：[卷王.cc]-加拿大 -0x-02
-  - 💦 28 - Trojan - IPv4 - 2053
-  - 💦 21 - VLESS - Clean IP - 443
-  - 💦 12 - VLESS - Clean IP - 443
-  - CF中转_0420101363
-  - 💦 10 - VLESS - Clean IP - 443
-  - 💦 9 - VLESS - Clean IP - 443
-  - 💦 8 - VLESS - Clean IP - 443
-  - 💦 6 - VLESS - Clean IP - 443
-  - CF中转_0420101366
-  - 💦 30 - VLESS - Clean IP - 2053
-  - 💦 33 - Trojan - Clean IP - 2053
-  - 💦 14 - VLESS - Clean IP - 443
-  - 💦 43 - Trojan - Clean IP - 2053
-  - 💦 6 - Trojan - Clean IP - 443
   - 💦 5 - VLESS - Clean IP - 443
-  - 💦 42 - VLESS - Clean IP - 2053
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_bdf026a4
-  - 💦 30 - Trojan - Clean IP - 2053
-  - 💦 40 - Trojan - Clean IP - 2053
-  - 💦 48 - VLESS - Clean IP - 2053
-  - 💦 26 - Trojan - Domain - 2053
-  - 💦 19 - Trojan - Clean IP - 443
-  - 💦 13 - VLESS - Clean IP - 443
-  - 💦 12 - Trojan - Clean IP - 443
-  - 💦 36 - VLESS - Clean IP - 2053
-  - 💦 23 - Trojan - Clean IP - 443
-  - 💦 9 - Trojan - Clean IP - 443
-  - CF中转_0420101376
-  - 💦 1 - Trojan - Domain - 443
-  - 💦 22 - Trojan - Clean IP - 443
-  - 💦 18 - Trojan - Clean IP - 443
-  - 💦 4 - VLESS - IPv4 - 443
-  - 💦 29 - VLESS - Clean IP - 2053
-  - 中文官网：[卷王.cc]-韩国 -0x-03
-  - 🇺🇸US-156.146.38.168-0204
-  - 💦 7 - VLESS - Clean IP - 443
-  - 💦 36 - Trojan - Clean IP - 2053
-  - 💦 47 - Trojan - Clean IP - 2053
-  - 💦 44 - VLESS - Clean IP - 2053
-  - 💦 41 - VLESS - Clean IP - 2053
-  - 💦 3 - Trojan - IPv4 - 443
-  - 💦 4 - Trojan - IPv4 - 443
-  - 💦 42 - Trojan - Clean IP - 2053
-  - 💦 20 - Trojan - Clean IP - 443
-  - 💦 35 - VLESS - Clean IP - 2053
-  - 💦 8 - Trojan - Clean IP - 443
-  - 💦 44 - Trojan - Clean IP - 2053
-  - 💦 48 - Trojan - Clean IP - 2053
-  - 💦 32 - VLESS - Clean IP - 2053
-  - 💦 31 - Trojan - Clean IP - 2053
-  - 💦 27 - VLESS - IPv4 - 2053
-  - 💦 45 - VLESS - Clean IP - 2053
-  - 💦 19 - VLESS - Clean IP - 443
-  - 💦 15 - Trojan - Clean IP - 443
-  - 💦 1 - VLESS - Domain - 443
-  - 💦 38 - VLESS - Clean IP - 2053
-  - 💦 24 - Trojan - Clean IP - 443
-  - 💦 5 - Trojan - Clean IP - 443
-  - 💦 34 - Trojan - Clean IP - 2053
-  - 💦 37 - VLESS - Clean IP - 2053
-  - 💦 29 - Trojan - Clean IP - 2053
-  - 💦 16 - VLESS - Clean IP - 443
-  - 💦 46 - Trojan - Clean IP - 2053
-  - 💦 17 - Trojan - Clean IP - 443
-  - 💦 11 - Trojan - Clean IP - 443
   - 💦 38 - Trojan - Clean IP - 2053
-  - 💦 21 - Trojan - Clean IP - 443
-  - 💦 28 - VLESS - IPv4 - 2053
-  - 💦 41 - Trojan - Clean IP - 2053
-  - 💦 47 - VLESS - Clean IP - 2053
-  - '[OpenRay] Dynamic-17040'
-  - 💦 7 - Trojan - Clean IP - 443
-  - 🇺🇸 US 768 → tg@nicevpn123
-  - CF中转_042010455
-  - CF中转_042010450
-  - CF中转_0420101368
+  - 💦 10 - VLESS - Clean IP - 443
+  - 💦 32 - VLESS - Clean IP - 2053
+  - 💦 25 - VLESS - Domain - 2053
   - 💦 10 - Trojan - Clean IP - 443
-  - NO 8 → tg@nicevpn123
-  - CF中转_0420101354
-  - 💦 16 - Trojan - Clean IP - 443
-  - CF中转_042010457
-  - CF中转_0420101176
-  - 💦 2 - Trojan - Domain - 443
-  - '[OpenRay] Dynamic-17041'
-  - CF中转_042010463
-  - 💦 15 - VLESS - Clean IP - 443
-  - CF中转_042010464
-  - CF中转_0420101367
-  - 💦 23 - VLESS - Clean IP - 443
-  - 💦 40 - VLESS - Clean IP - 2053
-  - 💦 45 - Trojan - Clean IP - 2053
-  - 🇬🇧 GB_05
-  - 💦 33 - VLESS - Clean IP - 2053
   - CF中转_0420103395
-  - CF中转_042010453
-  - 🇺🇸US-173.244.56.9-0207
-  - '[OpenRay] 🇺🇸 US-14155'
-  - 中文官网：[卷王.cc]-韩国 -0x-01
-  - CF中转_042010465
-  - CF中转_0420103398
-  - 未知_042010615
-  - 💦 46 - VLESS - Clean IP - 2053
-  - '[OpenRay] 🇺🇸 US-15142'
-  - 💦 11 - VLESS - Clean IP - 443
-  - CF中转_0420103392
-  - 💦 26 - VLESS - Domain - 2053
-  - '[OpenRay] Dynamic-15513'
+  - 💦 6 - VLESS - Clean IP - 443
+  - 🇨🇦CA-137.184.174.93-0196
+  - 💦 25 - Trojan - Domain - 2053
+  - 💦 44 - Trojan - Clean IP - 2053
+  - 💦 7 - VLESS - Clean IP - 443
+  - 💦 47 - VLESS - Clean IP - 2053
+  - 💦 8 - VLESS - Clean IP - 443
+  - 💦 36 - Trojan - Clean IP - 2053
+  - 💦 12 - VLESS - Clean IP - 443
+  - 💦 37 - VLESS - Clean IP - 2053
+  - 💦 33 - VLESS - Clean IP - 2053
+  - 💦 13 - Trojan - Clean IP - 443
+  - 💦 20 - VLESS - Clean IP - 443
+  - 💦 48 - VLESS - Clean IP - 2053
+  - 💦 36 - VLESS - Clean IP - 2053
+  - 💦 3 - VLESS - IPv4 - 443
+  - 💦 35 - VLESS - Clean IP - 2053
+  - 💦 21 - Trojan - Clean IP - 443
+  - 💦 2 - Trojan - Domain - 443
+  - 💦 9 - VLESS - Clean IP - 443
+  - 💦 39 - Trojan - Clean IP - 2053
+  - 💦 23 - VLESS - Clean IP - 443
+  - 💦 21 - VLESS - Clean IP - 443
+  - 💦 13 - VLESS - Clean IP - 443
+  - 💦 19 - Trojan - Clean IP - 443
   - 💦 18 - VLESS - Clean IP - 443
-  - NO 4 → tg@nicevpn123
-  - 💦 27 - Trojan - IPv4 - 2053
-  - 🇺🇸 US 1265 → tg@nicevpn123
-  - '[OpenRay] Dynamic-17157'
-  - 中文官网：[卷王.cc]-美国 -0x-06
-  - '[OpenRay] Dynamic-17042'
-  - 中文官网：[卷王.cc]-美国 -0x-09
-  - 💦 35 - Trojan - Clean IP - 2053
-  - '[OpenRay] Dynamic-17039'
-  - '[OpenRay] Dynamic-17032'
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_30cb0508
-  - 🇬🇧GB-146.70.61.37-0175
-  - 🇳🇱NL-109.201.152.181-0188
-  - 💦 39 - VLESS - Clean IP - 2053
-  - CF中转_0420103393
-  - 💦 22 - VLESS - Clean IP - 443
-  - '[OpenRay] 🇬🇧 GB-673'
-  - 🇬🇧GB-141.98.101.178-0221
-  - '[OpenRay] 🇬🇧 GB-868'
+  - 💦 44 - VLESS - Clean IP - 2053
+  - 💦 12 - Trojan - Clean IP - 443
+  - 💦 42 - Trojan - Clean IP - 2053
+  - 中文官网：[卷王.cc]-加拿大 -0x-02
+  - 💦 23 - Trojan - Clean IP - 443
+  - 💦 24 - Trojan - Clean IP - 443
+  - 💦 17 - VLESS - Clean IP - 443
+  - 💦 20 - Trojan - Clean IP - 443
+  - 💦 14 - VLESS - Clean IP - 443
   - 💦 24 - VLESS - Clean IP - 443
-  - '[OpenRay] 🇺🇸 US-15050'
+  - 💦 33 - Trojan - Clean IP - 2053
+  - 💦 27 - Trojan - IPv4 - 2053
+  - 💦 31 - Trojan - Clean IP - 2053
+  - 💦 31 - VLESS - Clean IP - 2053
+  - 💦 35 - Trojan - Clean IP - 2053
+  - 💦 16 - Trojan - Clean IP - 443
+  - 💦 22 - VLESS - Clean IP - 443
+  - 💦 11 - VLESS - Clean IP - 443
+  - 💦 45 - Trojan - Clean IP - 2053
+  - 💦 5 - Trojan - Clean IP - 443
+  - 💦 8 - Trojan - Clean IP - 443
+  - 💦 18 - Trojan - Clean IP - 443
+  - 💦 17 - Trojan - Clean IP - 443
+  - 💦 22 - Trojan - Clean IP - 443
+  - 💦 1 - VLESS - Domain - 443
+  - 🇺🇸US-156.146.38.167-0163
+  - 💦 34 - Trojan - Clean IP - 2053
+  - 💦 38 - VLESS - Clean IP - 2053
+  - 💦 4 - VLESS - IPv4 - 443
+  - 🇺🇸US-156.146.38.168-0204
+  - 💦 15 - Trojan - Clean IP - 443
+  - 💦 45 - VLESS - Clean IP - 2053
+  - 💦 16 - VLESS - Clean IP - 443
+  - 💦 15 - VLESS - Clean IP - 443
+  - 💦 30 - VLESS - Clean IP - 2053
+  - 💦 41 - Trojan - Clean IP - 2053
+  - CF中转_0420103392
+  - 💦 46 - Trojan - Clean IP - 2053
+  - 💦 41 - VLESS - Clean IP - 2053
+  - CF中转_0420102499
+  - 💦 9 - Trojan - Clean IP - 443
+  - 💦 27 - VLESS - IPv4 - 2053
+  - 💦 34 - VLESS - Clean IP - 2053
+  - NO 4 → tg@nicevpn123
+  - 💦 7 - Trojan - Clean IP - 443
+  - CF中转_0420103393
+  - 💦 46 - VLESS - Clean IP - 2053
+  - 💦 28 - VLESS - IPv4 - 2053
+  - 💦 28 - Trojan - IPv4 - 2053
+  - CF中转_042010453
+  - 💦 37 - Trojan - Clean IP - 2053
+  - 💦 26 - VLESS - Domain - 2053
+  - 💦 11 - Trojan - Clean IP - 443
+  - 💦 30 - Trojan - Clean IP - 2053
+  - CF中转_042010464
+  - CF中转_042010457
+  - CF中转_042010465
+  - 💦 14 - Trojan - Clean IP - 443
+  - CF中转_042010450
+  - 🇺🇸 US 768 → tg@nicevpn123
+  - 💦 1 - Trojan - Domain - 443
+  - CF中转_042010463
+  - CF中转_042010455
+  - CF中转_0420103398
+  - 💦 48 - Trojan - Clean IP - 2053
+  - 💦 4 - Trojan - IPv4 - 443
+  - 💦 42 - VLESS - Clean IP - 2053
+  - 中文官网：[卷王.cc]-美国 -0x-09
+  - 中文官网：[卷王.cc]-韩国 -0x-01
+  - 💦 6 - Trojan - Clean IP - 443
+  - 💦 39 - VLESS - Clean IP - 2053
+  - 🇬🇧 GB_05
+  - 💦 47 - Trojan - Clean IP - 2053
+  - 💦 26 - Trojan - Domain - 2053
+  - '[OpenRay] Dynamic-15513'
+  - 💦 43 - Trojan - Clean IP - 2053
+  - CF中转_042010452
+  - CF中转_042010462
   - 🔴🇺🇸[🎬🤖📺]_github.com/Ruk1ng001_b8c6b1b3
-  - 🇳🇱NL-213.109.147.242-0250
-  - '[OpenRay] 🇺🇸 US-15054'
-  - '[OpenRay] 🇮🇹 IT-49'
-  - 🇬🇧GB-141.98.101.182-0216
-  - '[OpenRay] 🇩🇪 DE-10070'
-  - 🇩🇪DE-8.209.74.72-0215
-  - 波兰 - 华沙 - 19
-  - '[OpenRay] Dynamic-17148'
-  - 德国_042010337
-  - 波兰 - 华沙 - 5
-  - '[OpenRay] 🇳🇱 NL-728'
-  - 🇬🇧GB-82.38.31.194-0168
-  - 🇳🇱NL-193.29.139.179-0200
-  - IT_Siziano_Oracle Corporation_Claude1
-  - 波兰 - 华沙 - 6
-  - 美国5
-  - 🇬🇧 GB 23 → tg@nicevpn123
-  - 🇬🇧GB-82.38.31.179-0202
-  - 波兰 - 华沙 - 8
-  - 🇬🇧GB-82.38.31.187-0177
-  - 中文官网：[卷王.cc]-日本 -0x-01
-  - 波兰 - 华沙 - 18
-  - 波兰 - 华沙 - 17
-  - 🇯🇵JP-149.22.87.204-0206
-  - 🇺🇸 US 259 → tg@nicevpn123
-  - 🇬🇧GB-51.132.227.118-0210
-  - 波兰 - 华沙 - 7
-  - 美国3
-  - 🇬🇧GB-51.132.227.118-0212
-  - '[OpenRay] 🇺🇸 US-15046'
-  - 🇺🇸_US_美国_3
-  - 🇳🇱 NL 9 → tg@nicevpn123
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_e55b3026
-  - 🇺🇸_US_美国_1-IDdF
-  - '[OpenRay] 🇯🇵 JP-1039'
-  - 🟢🇭🇰[🎬]_github.com/Ruk1ng001_69a38f0d
-  - 🔴🇺🇸[🎬🎭🎞️📦]_github.com/Ruk1ng001_a88e970f
-  - 🇬🇧GB-82.38.31.191-0193
-  - 🇺🇸 US 462 → tg@nicevpn123
-  - 🔴🇯🇵[🎬🤖📺🔍]_github.com/Ruk1ng001_c5d553c9
-  - 未知-VlnK
-  - 未知-3g5K
-  - ⚪🏳️_github.com/Ruk1ng001_46786f0e
-  - 🇸🇬 SG 27 → tg@nicevpn123
+  - 💦 3 - Trojan - IPv4 - 443
+  - 🇺🇸US-173.244.56.9-0207
+  - NO 8 → tg@nicevpn123
+  - '[OpenRay] 🇺🇸 US-15142'
+  - 🇬🇧GB-146.70.61.37-0175
+  - 💦 40 - Trojan - Clean IP - 2053
+  - 💦 19 - VLESS - Clean IP - 443
+  - 🇺🇸 US 1265 → tg@nicevpn123
+  - '[OpenRay] 🇺🇸 US-14155'
   - '[OpenRay] 🇬🇧 GB-216'
-  - '[OpenRay] 🇰🇷 KR-909'
-  - '[OpenRay] 🇰🇷 KR-911'
-  - '[OpenRay] 🇰🇷 KR-967'
+  - 🇬🇧GB-141.98.101.178-0221
+  - 中文官网：[卷王.cc]-美国 -0x-06
+  - '[OpenRay] 🇩🇪 DE-10070'
+  - 德国_042010337
+  - 🇬🇧GB-141.98.101.182-0216
+  - IT_Siziano_Oracle Corporation_Claude1
+  - 🇳🇱NL-109.201.152.181-0188
+  - 🇩🇪DE-8.209.74.72-0215
+  - 💦 32 - Trojan - Clean IP - 2053
+  - 🔴🇺🇸[🎬🎭🎞️📦]_github.com/Ruk1ng001_a88e970f
+  - 未知_042010615
+  - 波兰 - 华沙 - 19
+  - 🇺🇸 US 259 → tg@nicevpn123
+  - 💦 40 - VLESS - Clean IP - 2053
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_30cb0508
+  - 🇬🇧 GB 23 → tg@nicevpn123
+  - 波兰 - 华沙 - 7
+  - 💦 43 - VLESS - Clean IP - 2053
+  - '[OpenRay] 🇮🇹 IT-49'
+  - 💦 29 - Trojan - Clean IP - 2053
+  - '[OpenRay] 🇳🇱 NL-728'
+  - 波兰 - 华沙 - 6
+  - 波兰 - 华沙 - 5
+  - 🇬🇧GB-82.38.31.187-0177
+  - 🇳🇱NL-193.29.139.179-0200
+  - '[OpenRay] Dynamic-17148'
+  - 💦 29 - VLESS - Clean IP - 2053
+  - 波兰 - 华沙 - 17
+  - '[OpenRay] Dynamic-17157'
+  - 中文官网：[卷王.cc]-日本 -0x-01
+  - 🇯🇵JP-149.22.87.204-0206
+  - '[OpenRay] 🇯🇵 JP-1039'
+  - 🇳🇱 NL 9 → tg@nicevpn123
+  - '9'
+  - 🇬🇧GB-82.38.31.194-0168
+  - '[OpenRay] 🇬🇧 GB-673'
+  - 🇺🇸 US 462 → tg@nicevpn123
+  - 美国3
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_e55b3026
+  - 美国5
+  - 未知-3g5K
+  - 🇺🇸_US_美国_1-IDdF
+  - 🇬🇧GB-82.38.31.191-0193
+  - 🟢🇭🇰[🎬]_github.com/Ruk1ng001_69a38f0d
   - 未知_0420101539
-  - '[OpenRay] 🇰🇷 KR-919'
+  - 🇸🇬 SG 27 → tg@nicevpn123
+  - 🇺🇸_US_美国_3
+  - ⚪🏳️_github.com/Ruk1ng001_46786f0e
+  - 🔴🇯🇵[🎬🤖📺🔍]_github.com/Ruk1ng001_c5d553c9
+  - '[OpenRay] 🇰🇷 KR-909'
+  - 🇬🇧GB-51.132.227.118-0212
   - '[OpenRay] 🇰🇷 KR-1030'
-  - 🇸🇬 SG 39 → tg@nicevpn123
+  - '[OpenRay] 🇰🇷 KR-967'
+  - 未知-VlnK
+  - '[OpenRay] 🇰🇷 KR-911'
   - 日本2
-  - 香港_042010033
-  - HK香港(mibei77.com 米贝节点分享)_8-ewOg
-  - '[OpenRay] 🇰🇷 KR-920'
-  - HK香港(mibei77.com 米贝节点分享)_9-wPpf
-  - 香港_042010034
+  - 🇸🇬 SG 39 → tg@nicevpn123
+  - 🇬🇧GB-51.132.227.118-0210
   - '[OpenRay] 🇰🇷 KR-910'
-  - 新加坡_042010292
-  - 新加坡_042010290
+  - '[OpenRay] 🇰🇷 KR-919'
+  - '[OpenRay] 🇰🇷 KR-920'
+  - 🇬🇧GB-82.38.31.179-0202
   - 未知_0420101795
-  - 新加坡_042010297
   url: http://www.pinterest.com
   interval: 300
   tolerance: 50
@@ -3599,449 +3183,389 @@ proxy-groups:
   type: fallback
   exclude-filter: (?i)中国|China|CN|电信|移动|联通
   proxies:
-  - '9'
-  - 💦 34 - VLESS - Clean IP - 2053
-  - 💦 25 - VLESS - Domain - 2053
-  - 💦 3 - VLESS - IPv4 - 443
-  - 💦 17 - VLESS - Clean IP - 443
-  - 💦 31 - VLESS - Clean IP - 2053
-  - 💦 25 - Trojan - Domain - 2053
-  - CF中转_0420102499
-  - 💦 13 - Trojan - Clean IP - 443
-  - 💦 20 - VLESS - Clean IP - 443
-  - CF中转_042010462
-  - 💦 32 - Trojan - Clean IP - 2053
-  - 💦 14 - Trojan - Clean IP - 443
-  - 🇨🇦CA-137.184.174.93-0196
-  - CF中转_042010452
-  - CF中转_0420101370
-  - 🇺🇸US-156.146.38.167-0163
   - 🇺🇸US-37.19.198.243-0224
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_bdf026a4
   - 🇺🇸US-37.19.198.236-0199
   - 🇺🇸US-37.19.198.160-0213
-  - CF中转_0420101377
-  - 💦 37 - Trojan - Clean IP - 2053
-  - CF中转_0420101365
-  - 💦 43 - VLESS - Clean IP - 2053
-  - 💦 39 - Trojan - Clean IP - 2053
-  - 中文官网：[卷王.cc]-加拿大 -0x-02
-  - 💦 28 - Trojan - IPv4 - 2053
-  - 💦 21 - VLESS - Clean IP - 443
-  - 💦 12 - VLESS - Clean IP - 443
-  - CF中转_0420101363
-  - 💦 10 - VLESS - Clean IP - 443
-  - 💦 9 - VLESS - Clean IP - 443
-  - 💦 8 - VLESS - Clean IP - 443
-  - 💦 6 - VLESS - Clean IP - 443
-  - CF中转_0420101366
-  - 💦 30 - VLESS - Clean IP - 2053
-  - 💦 33 - Trojan - Clean IP - 2053
-  - 💦 14 - VLESS - Clean IP - 443
-  - 💦 43 - Trojan - Clean IP - 2053
-  - 💦 6 - Trojan - Clean IP - 443
   - 💦 5 - VLESS - Clean IP - 443
-  - 💦 42 - VLESS - Clean IP - 2053
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_bdf026a4
-  - 💦 30 - Trojan - Clean IP - 2053
-  - 💦 40 - Trojan - Clean IP - 2053
-  - 💦 48 - VLESS - Clean IP - 2053
-  - 💦 26 - Trojan - Domain - 2053
-  - 💦 19 - Trojan - Clean IP - 443
-  - 💦 13 - VLESS - Clean IP - 443
-  - 💦 12 - Trojan - Clean IP - 443
-  - 💦 36 - VLESS - Clean IP - 2053
-  - 💦 23 - Trojan - Clean IP - 443
-  - 💦 9 - Trojan - Clean IP - 443
-  - CF中转_0420101376
-  - 💦 1 - Trojan - Domain - 443
-  - 💦 22 - Trojan - Clean IP - 443
-  - 💦 18 - Trojan - Clean IP - 443
-  - 💦 4 - VLESS - IPv4 - 443
-  - 💦 29 - VLESS - Clean IP - 2053
-  - 中文官网：[卷王.cc]-韩国 -0x-03
-  - 🇺🇸US-156.146.38.168-0204
-  - 💦 7 - VLESS - Clean IP - 443
-  - 💦 36 - Trojan - Clean IP - 2053
-  - 💦 47 - Trojan - Clean IP - 2053
-  - 💦 44 - VLESS - Clean IP - 2053
-  - 💦 41 - VLESS - Clean IP - 2053
-  - 💦 3 - Trojan - IPv4 - 443
-  - 💦 4 - Trojan - IPv4 - 443
-  - 💦 42 - Trojan - Clean IP - 2053
-  - 💦 20 - Trojan - Clean IP - 443
-  - 💦 35 - VLESS - Clean IP - 2053
-  - 💦 8 - Trojan - Clean IP - 443
-  - 💦 44 - Trojan - Clean IP - 2053
-  - 💦 48 - Trojan - Clean IP - 2053
-  - 💦 32 - VLESS - Clean IP - 2053
-  - 💦 31 - Trojan - Clean IP - 2053
-  - 💦 27 - VLESS - IPv4 - 2053
-  - 💦 45 - VLESS - Clean IP - 2053
-  - 💦 19 - VLESS - Clean IP - 443
-  - 💦 15 - Trojan - Clean IP - 443
-  - 💦 1 - VLESS - Domain - 443
-  - 💦 38 - VLESS - Clean IP - 2053
-  - 💦 24 - Trojan - Clean IP - 443
-  - 💦 5 - Trojan - Clean IP - 443
-  - 💦 34 - Trojan - Clean IP - 2053
-  - 💦 37 - VLESS - Clean IP - 2053
-  - 💦 29 - Trojan - Clean IP - 2053
-  - 💦 16 - VLESS - Clean IP - 443
-  - 💦 46 - Trojan - Clean IP - 2053
-  - 💦 17 - Trojan - Clean IP - 443
-  - 💦 11 - Trojan - Clean IP - 443
   - 💦 38 - Trojan - Clean IP - 2053
-  - 💦 21 - Trojan - Clean IP - 443
-  - 💦 28 - VLESS - IPv4 - 2053
-  - 💦 41 - Trojan - Clean IP - 2053
-  - 💦 47 - VLESS - Clean IP - 2053
-  - '[OpenRay] Dynamic-17040'
-  - 💦 7 - Trojan - Clean IP - 443
-  - 🇺🇸 US 768 → tg@nicevpn123
-  - CF中转_042010455
-  - CF中转_042010450
-  - CF中转_0420101368
+  - 💦 10 - VLESS - Clean IP - 443
+  - 💦 32 - VLESS - Clean IP - 2053
+  - 💦 25 - VLESS - Domain - 2053
   - 💦 10 - Trojan - Clean IP - 443
-  - NO 8 → tg@nicevpn123
-  - CF中转_0420101354
-  - 💦 16 - Trojan - Clean IP - 443
-  - CF中转_042010457
-  - CF中转_0420101176
-  - 💦 2 - Trojan - Domain - 443
-  - '[OpenRay] Dynamic-17041'
-  - CF中转_042010463
-  - 💦 15 - VLESS - Clean IP - 443
-  - CF中转_042010464
-  - CF中转_0420101367
-  - 💦 23 - VLESS - Clean IP - 443
-  - 💦 40 - VLESS - Clean IP - 2053
-  - 💦 45 - Trojan - Clean IP - 2053
-  - 🇬🇧 GB_05
-  - 💦 33 - VLESS - Clean IP - 2053
   - CF中转_0420103395
-  - CF中转_042010453
-  - 🇺🇸US-173.244.56.9-0207
-  - '[OpenRay] 🇺🇸 US-14155'
-  - 中文官网：[卷王.cc]-韩国 -0x-01
-  - CF中转_042010465
-  - CF中转_0420103398
-  - 未知_042010615
-  - 💦 46 - VLESS - Clean IP - 2053
-  - '[OpenRay] 🇺🇸 US-15142'
-  - 💦 11 - VLESS - Clean IP - 443
-  - CF中转_0420103392
-  - 💦 26 - VLESS - Domain - 2053
-  - '[OpenRay] Dynamic-15513'
+  - 💦 6 - VLESS - Clean IP - 443
+  - 🇨🇦CA-137.184.174.93-0196
+  - 💦 25 - Trojan - Domain - 2053
+  - 💦 44 - Trojan - Clean IP - 2053
+  - 💦 7 - VLESS - Clean IP - 443
+  - 💦 47 - VLESS - Clean IP - 2053
+  - 💦 8 - VLESS - Clean IP - 443
+  - 💦 36 - Trojan - Clean IP - 2053
+  - 💦 12 - VLESS - Clean IP - 443
+  - 💦 37 - VLESS - Clean IP - 2053
+  - 💦 33 - VLESS - Clean IP - 2053
+  - 💦 13 - Trojan - Clean IP - 443
+  - 💦 20 - VLESS - Clean IP - 443
+  - 💦 48 - VLESS - Clean IP - 2053
+  - 💦 36 - VLESS - Clean IP - 2053
+  - 💦 3 - VLESS - IPv4 - 443
+  - 💦 35 - VLESS - Clean IP - 2053
+  - 💦 21 - Trojan - Clean IP - 443
+  - 💦 2 - Trojan - Domain - 443
+  - 💦 9 - VLESS - Clean IP - 443
+  - 💦 39 - Trojan - Clean IP - 2053
+  - 💦 23 - VLESS - Clean IP - 443
+  - 💦 21 - VLESS - Clean IP - 443
+  - 💦 13 - VLESS - Clean IP - 443
+  - 💦 19 - Trojan - Clean IP - 443
   - 💦 18 - VLESS - Clean IP - 443
-  - NO 4 → tg@nicevpn123
-  - 💦 27 - Trojan - IPv4 - 2053
-  - 🇺🇸 US 1265 → tg@nicevpn123
-  - '[OpenRay] Dynamic-17157'
-  - 中文官网：[卷王.cc]-美国 -0x-06
-  - '[OpenRay] Dynamic-17042'
-  - 中文官网：[卷王.cc]-美国 -0x-09
-  - 💦 35 - Trojan - Clean IP - 2053
-  - '[OpenRay] Dynamic-17039'
-  - '[OpenRay] Dynamic-17032'
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_30cb0508
-  - 🇬🇧GB-146.70.61.37-0175
-  - 🇳🇱NL-109.201.152.181-0188
-  - 💦 39 - VLESS - Clean IP - 2053
-  - CF中转_0420103393
-  - 💦 22 - VLESS - Clean IP - 443
-  - '[OpenRay] 🇬🇧 GB-673'
-  - 🇬🇧GB-141.98.101.178-0221
-  - '[OpenRay] 🇬🇧 GB-868'
+  - 💦 44 - VLESS - Clean IP - 2053
+  - 💦 12 - Trojan - Clean IP - 443
+  - 💦 42 - Trojan - Clean IP - 2053
+  - 中文官网：[卷王.cc]-加拿大 -0x-02
+  - 💦 23 - Trojan - Clean IP - 443
+  - 💦 24 - Trojan - Clean IP - 443
+  - 💦 17 - VLESS - Clean IP - 443
+  - 💦 20 - Trojan - Clean IP - 443
+  - 💦 14 - VLESS - Clean IP - 443
   - 💦 24 - VLESS - Clean IP - 443
-  - '[OpenRay] 🇺🇸 US-15050'
+  - 💦 33 - Trojan - Clean IP - 2053
+  - 💦 27 - Trojan - IPv4 - 2053
+  - 💦 31 - Trojan - Clean IP - 2053
+  - 💦 31 - VLESS - Clean IP - 2053
+  - 💦 35 - Trojan - Clean IP - 2053
+  - 💦 16 - Trojan - Clean IP - 443
+  - 💦 22 - VLESS - Clean IP - 443
+  - 💦 11 - VLESS - Clean IP - 443
+  - 💦 45 - Trojan - Clean IP - 2053
+  - 💦 5 - Trojan - Clean IP - 443
+  - 💦 8 - Trojan - Clean IP - 443
+  - 💦 18 - Trojan - Clean IP - 443
+  - 💦 17 - Trojan - Clean IP - 443
+  - 💦 22 - Trojan - Clean IP - 443
+  - 💦 1 - VLESS - Domain - 443
+  - 🇺🇸US-156.146.38.167-0163
+  - 💦 34 - Trojan - Clean IP - 2053
+  - 💦 38 - VLESS - Clean IP - 2053
+  - 💦 4 - VLESS - IPv4 - 443
+  - 🇺🇸US-156.146.38.168-0204
+  - 💦 15 - Trojan - Clean IP - 443
+  - 💦 45 - VLESS - Clean IP - 2053
+  - 💦 16 - VLESS - Clean IP - 443
+  - 💦 15 - VLESS - Clean IP - 443
+  - 💦 30 - VLESS - Clean IP - 2053
+  - 💦 41 - Trojan - Clean IP - 2053
+  - CF中转_0420103392
+  - 💦 46 - Trojan - Clean IP - 2053
+  - 💦 41 - VLESS - Clean IP - 2053
+  - CF中转_0420102499
+  - 💦 9 - Trojan - Clean IP - 443
+  - 💦 27 - VLESS - IPv4 - 2053
+  - 💦 34 - VLESS - Clean IP - 2053
+  - NO 4 → tg@nicevpn123
+  - 💦 7 - Trojan - Clean IP - 443
+  - CF中转_0420103393
+  - 💦 46 - VLESS - Clean IP - 2053
+  - 💦 28 - VLESS - IPv4 - 2053
+  - 💦 28 - Trojan - IPv4 - 2053
+  - CF中转_042010453
+  - 💦 37 - Trojan - Clean IP - 2053
+  - 💦 26 - VLESS - Domain - 2053
+  - 💦 11 - Trojan - Clean IP - 443
+  - 💦 30 - Trojan - Clean IP - 2053
+  - CF中转_042010464
+  - CF中转_042010457
+  - CF中转_042010465
+  - 💦 14 - Trojan - Clean IP - 443
+  - CF中转_042010450
+  - 🇺🇸 US 768 → tg@nicevpn123
+  - 💦 1 - Trojan - Domain - 443
+  - CF中转_042010463
+  - CF中转_042010455
+  - CF中转_0420103398
+  - 💦 48 - Trojan - Clean IP - 2053
+  - 💦 4 - Trojan - IPv4 - 443
+  - 💦 42 - VLESS - Clean IP - 2053
+  - 中文官网：[卷王.cc]-美国 -0x-09
+  - 中文官网：[卷王.cc]-韩国 -0x-01
+  - 💦 6 - Trojan - Clean IP - 443
+  - 💦 39 - VLESS - Clean IP - 2053
+  - 🇬🇧 GB_05
+  - 💦 47 - Trojan - Clean IP - 2053
+  - 💦 26 - Trojan - Domain - 2053
+  - '[OpenRay] Dynamic-15513'
+  - 💦 43 - Trojan - Clean IP - 2053
+  - CF中转_042010452
+  - CF中转_042010462
   - 🔴🇺🇸[🎬🤖📺]_github.com/Ruk1ng001_b8c6b1b3
-  - 🇳🇱NL-213.109.147.242-0250
-  - '[OpenRay] 🇺🇸 US-15054'
-  - '[OpenRay] 🇮🇹 IT-49'
-  - 🇬🇧GB-141.98.101.182-0216
-  - '[OpenRay] 🇩🇪 DE-10070'
-  - 🇩🇪DE-8.209.74.72-0215
-  - 波兰 - 华沙 - 19
-  - '[OpenRay] Dynamic-17148'
-  - 德国_042010337
-  - 波兰 - 华沙 - 5
-  - '[OpenRay] 🇳🇱 NL-728'
-  - 🇬🇧GB-82.38.31.194-0168
-  - 🇳🇱NL-193.29.139.179-0200
-  - IT_Siziano_Oracle Corporation_Claude1
-  - 波兰 - 华沙 - 6
-  - 美国5
-  - 🇬🇧 GB 23 → tg@nicevpn123
-  - 🇬🇧GB-82.38.31.179-0202
-  - 波兰 - 华沙 - 8
-  - 🇬🇧GB-82.38.31.187-0177
-  - 中文官网：[卷王.cc]-日本 -0x-01
-  - 波兰 - 华沙 - 18
-  - 波兰 - 华沙 - 17
-  - 🇯🇵JP-149.22.87.204-0206
-  - 🇺🇸 US 259 → tg@nicevpn123
-  - 🇬🇧GB-51.132.227.118-0210
-  - 波兰 - 华沙 - 7
-  - 美国3
-  - 🇬🇧GB-51.132.227.118-0212
-  - '[OpenRay] 🇺🇸 US-15046'
-  - 🇺🇸_US_美国_3
-  - 🇳🇱 NL 9 → tg@nicevpn123
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_e55b3026
-  - 🇺🇸_US_美国_1-IDdF
-  - '[OpenRay] 🇯🇵 JP-1039'
-  - 🟢🇭🇰[🎬]_github.com/Ruk1ng001_69a38f0d
-  - 🔴🇺🇸[🎬🎭🎞️📦]_github.com/Ruk1ng001_a88e970f
-  - 🇬🇧GB-82.38.31.191-0193
-  - 🇺🇸 US 462 → tg@nicevpn123
-  - 🔴🇯🇵[🎬🤖📺🔍]_github.com/Ruk1ng001_c5d553c9
-  - 未知-VlnK
-  - 未知-3g5K
-  - ⚪🏳️_github.com/Ruk1ng001_46786f0e
-  - 🇸🇬 SG 27 → tg@nicevpn123
+  - 💦 3 - Trojan - IPv4 - 443
+  - 🇺🇸US-173.244.56.9-0207
+  - NO 8 → tg@nicevpn123
+  - '[OpenRay] 🇺🇸 US-15142'
+  - 🇬🇧GB-146.70.61.37-0175
+  - 💦 40 - Trojan - Clean IP - 2053
+  - 💦 19 - VLESS - Clean IP - 443
+  - 🇺🇸 US 1265 → tg@nicevpn123
+  - '[OpenRay] 🇺🇸 US-14155'
   - '[OpenRay] 🇬🇧 GB-216'
-  - '[OpenRay] 🇰🇷 KR-909'
-  - '[OpenRay] 🇰🇷 KR-911'
-  - '[OpenRay] 🇰🇷 KR-967'
+  - 🇬🇧GB-141.98.101.178-0221
+  - 中文官网：[卷王.cc]-美国 -0x-06
+  - '[OpenRay] 🇩🇪 DE-10070'
+  - 德国_042010337
+  - 🇬🇧GB-141.98.101.182-0216
+  - IT_Siziano_Oracle Corporation_Claude1
+  - 🇳🇱NL-109.201.152.181-0188
+  - 🇩🇪DE-8.209.74.72-0215
+  - 💦 32 - Trojan - Clean IP - 2053
+  - 🔴🇺🇸[🎬🎭🎞️📦]_github.com/Ruk1ng001_a88e970f
+  - 未知_042010615
+  - 波兰 - 华沙 - 19
+  - 🇺🇸 US 259 → tg@nicevpn123
+  - 💦 40 - VLESS - Clean IP - 2053
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_30cb0508
+  - 🇬🇧 GB 23 → tg@nicevpn123
+  - 波兰 - 华沙 - 7
+  - 💦 43 - VLESS - Clean IP - 2053
+  - '[OpenRay] 🇮🇹 IT-49'
+  - 💦 29 - Trojan - Clean IP - 2053
+  - '[OpenRay] 🇳🇱 NL-728'
+  - 波兰 - 华沙 - 6
+  - 波兰 - 华沙 - 5
+  - 🇬🇧GB-82.38.31.187-0177
+  - 🇳🇱NL-193.29.139.179-0200
+  - '[OpenRay] Dynamic-17148'
+  - 💦 29 - VLESS - Clean IP - 2053
+  - 波兰 - 华沙 - 17
+  - '[OpenRay] Dynamic-17157'
+  - 中文官网：[卷王.cc]-日本 -0x-01
+  - 🇯🇵JP-149.22.87.204-0206
+  - '[OpenRay] 🇯🇵 JP-1039'
+  - 🇳🇱 NL 9 → tg@nicevpn123
+  - '9'
+  - 🇬🇧GB-82.38.31.194-0168
+  - '[OpenRay] 🇬🇧 GB-673'
+  - 🇺🇸 US 462 → tg@nicevpn123
+  - 美国3
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_e55b3026
+  - 美国5
+  - 未知-3g5K
+  - 🇺🇸_US_美国_1-IDdF
+  - 🇬🇧GB-82.38.31.191-0193
+  - 🟢🇭🇰[🎬]_github.com/Ruk1ng001_69a38f0d
   - 未知_0420101539
-  - '[OpenRay] 🇰🇷 KR-919'
+  - 🇸🇬 SG 27 → tg@nicevpn123
+  - 🇺🇸_US_美国_3
+  - ⚪🏳️_github.com/Ruk1ng001_46786f0e
+  - 🔴🇯🇵[🎬🤖📺🔍]_github.com/Ruk1ng001_c5d553c9
+  - '[OpenRay] 🇰🇷 KR-909'
+  - 🇬🇧GB-51.132.227.118-0212
   - '[OpenRay] 🇰🇷 KR-1030'
-  - 🇸🇬 SG 39 → tg@nicevpn123
+  - '[OpenRay] 🇰🇷 KR-967'
+  - 未知-VlnK
+  - '[OpenRay] 🇰🇷 KR-911'
   - 日本2
-  - 香港_042010033
-  - HK香港(mibei77.com 米贝节点分享)_8-ewOg
-  - '[OpenRay] 🇰🇷 KR-920'
-  - HK香港(mibei77.com 米贝节点分享)_9-wPpf
-  - 香港_042010034
+  - 🇸🇬 SG 39 → tg@nicevpn123
+  - 🇬🇧GB-51.132.227.118-0210
   - '[OpenRay] 🇰🇷 KR-910'
-  - 新加坡_042010292
-  - 新加坡_042010290
+  - '[OpenRay] 🇰🇷 KR-919'
+  - '[OpenRay] 🇰🇷 KR-920'
+  - 🇬🇧GB-82.38.31.179-0202
   - 未知_0420101795
-  - 新加坡_042010297
   url: http://www.gstatic.com/generate_204
   interval: 300
 - name: 手动选择
   type: select
   proxies:
-  - '9'
-  - 💦 34 - VLESS - Clean IP - 2053
-  - 💦 25 - VLESS - Domain - 2053
-  - 💦 3 - VLESS - IPv4 - 443
-  - 💦 17 - VLESS - Clean IP - 443
-  - 💦 31 - VLESS - Clean IP - 2053
-  - 💦 25 - Trojan - Domain - 2053
-  - CF中转_0420102499
-  - 💦 13 - Trojan - Clean IP - 443
-  - 💦 20 - VLESS - Clean IP - 443
-  - CF中转_042010462
-  - 💦 32 - Trojan - Clean IP - 2053
-  - 💦 14 - Trojan - Clean IP - 443
-  - 🇨🇦CA-137.184.174.93-0196
-  - CF中转_042010452
-  - CF中转_0420101370
-  - 🇺🇸US-156.146.38.167-0163
   - 🇺🇸US-37.19.198.243-0224
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_bdf026a4
   - 🇺🇸US-37.19.198.236-0199
   - 🇺🇸US-37.19.198.160-0213
-  - CF中转_0420101377
-  - 💦 37 - Trojan - Clean IP - 2053
-  - CF中转_0420101365
-  - 💦 43 - VLESS - Clean IP - 2053
-  - 💦 39 - Trojan - Clean IP - 2053
-  - 中文官网：[卷王.cc]-加拿大 -0x-02
-  - 💦 28 - Trojan - IPv4 - 2053
-  - 💦 21 - VLESS - Clean IP - 443
-  - 💦 12 - VLESS - Clean IP - 443
-  - CF中转_0420101363
-  - 💦 10 - VLESS - Clean IP - 443
-  - 💦 9 - VLESS - Clean IP - 443
-  - 💦 8 - VLESS - Clean IP - 443
-  - 💦 6 - VLESS - Clean IP - 443
-  - CF中转_0420101366
-  - 💦 30 - VLESS - Clean IP - 2053
-  - 💦 33 - Trojan - Clean IP - 2053
-  - 💦 14 - VLESS - Clean IP - 443
-  - 💦 43 - Trojan - Clean IP - 2053
-  - 💦 6 - Trojan - Clean IP - 443
   - 💦 5 - VLESS - Clean IP - 443
-  - 💦 42 - VLESS - Clean IP - 2053
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_bdf026a4
-  - 💦 30 - Trojan - Clean IP - 2053
-  - 💦 40 - Trojan - Clean IP - 2053
-  - 💦 48 - VLESS - Clean IP - 2053
-  - 💦 26 - Trojan - Domain - 2053
-  - 💦 19 - Trojan - Clean IP - 443
-  - 💦 13 - VLESS - Clean IP - 443
-  - 💦 12 - Trojan - Clean IP - 443
-  - 💦 36 - VLESS - Clean IP - 2053
-  - 💦 23 - Trojan - Clean IP - 443
-  - 💦 9 - Trojan - Clean IP - 443
-  - CF中转_0420101376
-  - 💦 1 - Trojan - Domain - 443
-  - 💦 22 - Trojan - Clean IP - 443
-  - 💦 18 - Trojan - Clean IP - 443
-  - 💦 4 - VLESS - IPv4 - 443
-  - 💦 29 - VLESS - Clean IP - 2053
-  - 中文官网：[卷王.cc]-韩国 -0x-03
-  - 🇺🇸US-156.146.38.168-0204
-  - 💦 7 - VLESS - Clean IP - 443
-  - 💦 36 - Trojan - Clean IP - 2053
-  - 💦 47 - Trojan - Clean IP - 2053
-  - 💦 44 - VLESS - Clean IP - 2053
-  - 💦 41 - VLESS - Clean IP - 2053
-  - 💦 3 - Trojan - IPv4 - 443
-  - 💦 4 - Trojan - IPv4 - 443
-  - 💦 42 - Trojan - Clean IP - 2053
-  - 💦 20 - Trojan - Clean IP - 443
-  - 💦 35 - VLESS - Clean IP - 2053
-  - 💦 8 - Trojan - Clean IP - 443
-  - 💦 44 - Trojan - Clean IP - 2053
-  - 💦 48 - Trojan - Clean IP - 2053
-  - 💦 32 - VLESS - Clean IP - 2053
-  - 💦 31 - Trojan - Clean IP - 2053
-  - 💦 27 - VLESS - IPv4 - 2053
-  - 💦 45 - VLESS - Clean IP - 2053
-  - 💦 19 - VLESS - Clean IP - 443
-  - 💦 15 - Trojan - Clean IP - 443
-  - 💦 1 - VLESS - Domain - 443
-  - 💦 38 - VLESS - Clean IP - 2053
-  - 💦 24 - Trojan - Clean IP - 443
-  - 💦 5 - Trojan - Clean IP - 443
-  - 💦 34 - Trojan - Clean IP - 2053
-  - 💦 37 - VLESS - Clean IP - 2053
-  - 💦 29 - Trojan - Clean IP - 2053
-  - 💦 16 - VLESS - Clean IP - 443
-  - 💦 46 - Trojan - Clean IP - 2053
-  - 💦 17 - Trojan - Clean IP - 443
-  - 💦 11 - Trojan - Clean IP - 443
   - 💦 38 - Trojan - Clean IP - 2053
-  - 💦 21 - Trojan - Clean IP - 443
-  - 💦 28 - VLESS - IPv4 - 2053
-  - 💦 41 - Trojan - Clean IP - 2053
-  - 💦 47 - VLESS - Clean IP - 2053
-  - '[OpenRay] Dynamic-17040'
-  - 💦 7 - Trojan - Clean IP - 443
-  - 🇺🇸 US 768 → tg@nicevpn123
-  - CF中转_042010455
-  - CF中转_042010450
-  - CF中转_0420101368
+  - 💦 10 - VLESS - Clean IP - 443
+  - 💦 32 - VLESS - Clean IP - 2053
+  - 💦 25 - VLESS - Domain - 2053
   - 💦 10 - Trojan - Clean IP - 443
-  - NO 8 → tg@nicevpn123
-  - CF中转_0420101354
-  - 💦 16 - Trojan - Clean IP - 443
-  - CF中转_042010457
-  - CF中转_0420101176
-  - 💦 2 - Trojan - Domain - 443
-  - '[OpenRay] Dynamic-17041'
-  - CF中转_042010463
-  - 💦 15 - VLESS - Clean IP - 443
-  - CF中转_042010464
-  - CF中转_0420101367
-  - 💦 23 - VLESS - Clean IP - 443
-  - 💦 40 - VLESS - Clean IP - 2053
-  - 💦 45 - Trojan - Clean IP - 2053
-  - 🇬🇧 GB_05
-  - 💦 33 - VLESS - Clean IP - 2053
   - CF中转_0420103395
-  - CF中转_042010453
-  - 🇺🇸US-173.244.56.9-0207
-  - '[OpenRay] 🇺🇸 US-14155'
-  - 中文官网：[卷王.cc]-韩国 -0x-01
-  - CF中转_042010465
-  - CF中转_0420103398
-  - 未知_042010615
-  - 💦 46 - VLESS - Clean IP - 2053
-  - '[OpenRay] 🇺🇸 US-15142'
-  - 💦 11 - VLESS - Clean IP - 443
-  - CF中转_0420103392
-  - 💦 26 - VLESS - Domain - 2053
-  - '[OpenRay] Dynamic-15513'
+  - 💦 6 - VLESS - Clean IP - 443
+  - 🇨🇦CA-137.184.174.93-0196
+  - 💦 25 - Trojan - Domain - 2053
+  - 💦 44 - Trojan - Clean IP - 2053
+  - 💦 7 - VLESS - Clean IP - 443
+  - 💦 47 - VLESS - Clean IP - 2053
+  - 💦 8 - VLESS - Clean IP - 443
+  - 💦 36 - Trojan - Clean IP - 2053
+  - 💦 12 - VLESS - Clean IP - 443
+  - 💦 37 - VLESS - Clean IP - 2053
+  - 💦 33 - VLESS - Clean IP - 2053
+  - 💦 13 - Trojan - Clean IP - 443
+  - 💦 20 - VLESS - Clean IP - 443
+  - 💦 48 - VLESS - Clean IP - 2053
+  - 💦 36 - VLESS - Clean IP - 2053
+  - 💦 3 - VLESS - IPv4 - 443
+  - 💦 35 - VLESS - Clean IP - 2053
+  - 💦 21 - Trojan - Clean IP - 443
+  - 💦 2 - Trojan - Domain - 443
+  - 💦 9 - VLESS - Clean IP - 443
+  - 💦 39 - Trojan - Clean IP - 2053
+  - 💦 23 - VLESS - Clean IP - 443
+  - 💦 21 - VLESS - Clean IP - 443
+  - 💦 13 - VLESS - Clean IP - 443
+  - 💦 19 - Trojan - Clean IP - 443
   - 💦 18 - VLESS - Clean IP - 443
-  - NO 4 → tg@nicevpn123
-  - 💦 27 - Trojan - IPv4 - 2053
-  - 🇺🇸 US 1265 → tg@nicevpn123
-  - '[OpenRay] Dynamic-17157'
-  - 中文官网：[卷王.cc]-美国 -0x-06
-  - '[OpenRay] Dynamic-17042'
-  - 中文官网：[卷王.cc]-美国 -0x-09
-  - 💦 35 - Trojan - Clean IP - 2053
-  - '[OpenRay] Dynamic-17039'
-  - '[OpenRay] Dynamic-17032'
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_30cb0508
-  - 🇬🇧GB-146.70.61.37-0175
-  - 🇳🇱NL-109.201.152.181-0188
-  - 💦 39 - VLESS - Clean IP - 2053
-  - CF中转_0420103393
-  - 💦 22 - VLESS - Clean IP - 443
-  - '[OpenRay] 🇬🇧 GB-673'
-  - 🇬🇧GB-141.98.101.178-0221
-  - '[OpenRay] 🇬🇧 GB-868'
+  - 💦 44 - VLESS - Clean IP - 2053
+  - 💦 12 - Trojan - Clean IP - 443
+  - 💦 42 - Trojan - Clean IP - 2053
+  - 中文官网：[卷王.cc]-加拿大 -0x-02
+  - 💦 23 - Trojan - Clean IP - 443
+  - 💦 24 - Trojan - Clean IP - 443
+  - 💦 17 - VLESS - Clean IP - 443
+  - 💦 20 - Trojan - Clean IP - 443
+  - 💦 14 - VLESS - Clean IP - 443
   - 💦 24 - VLESS - Clean IP - 443
-  - '[OpenRay] 🇺🇸 US-15050'
+  - 💦 33 - Trojan - Clean IP - 2053
+  - 💦 27 - Trojan - IPv4 - 2053
+  - 💦 31 - Trojan - Clean IP - 2053
+  - 💦 31 - VLESS - Clean IP - 2053
+  - 💦 35 - Trojan - Clean IP - 2053
+  - 💦 16 - Trojan - Clean IP - 443
+  - 💦 22 - VLESS - Clean IP - 443
+  - 💦 11 - VLESS - Clean IP - 443
+  - 💦 45 - Trojan - Clean IP - 2053
+  - 💦 5 - Trojan - Clean IP - 443
+  - 💦 8 - Trojan - Clean IP - 443
+  - 💦 18 - Trojan - Clean IP - 443
+  - 💦 17 - Trojan - Clean IP - 443
+  - 💦 22 - Trojan - Clean IP - 443
+  - 💦 1 - VLESS - Domain - 443
+  - 🇺🇸US-156.146.38.167-0163
+  - 💦 34 - Trojan - Clean IP - 2053
+  - 💦 38 - VLESS - Clean IP - 2053
+  - 💦 4 - VLESS - IPv4 - 443
+  - 🇺🇸US-156.146.38.168-0204
+  - 💦 15 - Trojan - Clean IP - 443
+  - 💦 45 - VLESS - Clean IP - 2053
+  - 💦 16 - VLESS - Clean IP - 443
+  - 💦 15 - VLESS - Clean IP - 443
+  - 💦 30 - VLESS - Clean IP - 2053
+  - 💦 41 - Trojan - Clean IP - 2053
+  - CF中转_0420103392
+  - 💦 46 - Trojan - Clean IP - 2053
+  - 💦 41 - VLESS - Clean IP - 2053
+  - CF中转_0420102499
+  - 💦 9 - Trojan - Clean IP - 443
+  - 💦 27 - VLESS - IPv4 - 2053
+  - 💦 34 - VLESS - Clean IP - 2053
+  - NO 4 → tg@nicevpn123
+  - 💦 7 - Trojan - Clean IP - 443
+  - CF中转_0420103393
+  - 💦 46 - VLESS - Clean IP - 2053
+  - 💦 28 - VLESS - IPv4 - 2053
+  - 💦 28 - Trojan - IPv4 - 2053
+  - CF中转_042010453
+  - 💦 37 - Trojan - Clean IP - 2053
+  - 💦 26 - VLESS - Domain - 2053
+  - 💦 11 - Trojan - Clean IP - 443
+  - 💦 30 - Trojan - Clean IP - 2053
+  - CF中转_042010464
+  - CF中转_042010457
+  - CF中转_042010465
+  - 💦 14 - Trojan - Clean IP - 443
+  - CF中转_042010450
+  - 🇺🇸 US 768 → tg@nicevpn123
+  - 💦 1 - Trojan - Domain - 443
+  - CF中转_042010463
+  - CF中转_042010455
+  - CF中转_0420103398
+  - 💦 48 - Trojan - Clean IP - 2053
+  - 💦 4 - Trojan - IPv4 - 443
+  - 💦 42 - VLESS - Clean IP - 2053
+  - 中文官网：[卷王.cc]-美国 -0x-09
+  - 中文官网：[卷王.cc]-韩国 -0x-01
+  - 💦 6 - Trojan - Clean IP - 443
+  - 💦 39 - VLESS - Clean IP - 2053
+  - 🇬🇧 GB_05
+  - 💦 47 - Trojan - Clean IP - 2053
+  - 💦 26 - Trojan - Domain - 2053
+  - '[OpenRay] Dynamic-15513'
+  - 💦 43 - Trojan - Clean IP - 2053
+  - CF中转_042010452
+  - CF中转_042010462
   - 🔴🇺🇸[🎬🤖📺]_github.com/Ruk1ng001_b8c6b1b3
-  - 🇳🇱NL-213.109.147.242-0250
-  - '[OpenRay] 🇺🇸 US-15054'
-  - '[OpenRay] 🇮🇹 IT-49'
-  - 🇬🇧GB-141.98.101.182-0216
-  - '[OpenRay] 🇩🇪 DE-10070'
-  - 🇩🇪DE-8.209.74.72-0215
-  - 波兰 - 华沙 - 19
-  - '[OpenRay] Dynamic-17148'
-  - 德国_042010337
-  - 波兰 - 华沙 - 5
-  - '[OpenRay] 🇳🇱 NL-728'
-  - 🇬🇧GB-82.38.31.194-0168
-  - 🇳🇱NL-193.29.139.179-0200
-  - IT_Siziano_Oracle Corporation_Claude1
-  - 波兰 - 华沙 - 6
-  - 美国5
-  - 🇬🇧 GB 23 → tg@nicevpn123
-  - 🇬🇧GB-82.38.31.179-0202
-  - 波兰 - 华沙 - 8
-  - 🇬🇧GB-82.38.31.187-0177
-  - 中文官网：[卷王.cc]-日本 -0x-01
-  - 波兰 - 华沙 - 18
-  - 波兰 - 华沙 - 17
-  - 🇯🇵JP-149.22.87.204-0206
-  - 🇺🇸 US 259 → tg@nicevpn123
-  - 🇬🇧GB-51.132.227.118-0210
-  - 波兰 - 华沙 - 7
-  - 美国3
-  - 🇬🇧GB-51.132.227.118-0212
-  - '[OpenRay] 🇺🇸 US-15046'
-  - 🇺🇸_US_美国_3
-  - 🇳🇱 NL 9 → tg@nicevpn123
-  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_e55b3026
-  - 🇺🇸_US_美国_1-IDdF
-  - '[OpenRay] 🇯🇵 JP-1039'
-  - 🟢🇭🇰[🎬]_github.com/Ruk1ng001_69a38f0d
-  - 🔴🇺🇸[🎬🎭🎞️📦]_github.com/Ruk1ng001_a88e970f
-  - 🇬🇧GB-82.38.31.191-0193
-  - 🇺🇸 US 462 → tg@nicevpn123
-  - 🔴🇯🇵[🎬🤖📺🔍]_github.com/Ruk1ng001_c5d553c9
-  - 未知-VlnK
-  - 未知-3g5K
-  - ⚪🏳️_github.com/Ruk1ng001_46786f0e
-  - 🇸🇬 SG 27 → tg@nicevpn123
+  - 💦 3 - Trojan - IPv4 - 443
+  - 🇺🇸US-173.244.56.9-0207
+  - NO 8 → tg@nicevpn123
+  - '[OpenRay] 🇺🇸 US-15142'
+  - 🇬🇧GB-146.70.61.37-0175
+  - 💦 40 - Trojan - Clean IP - 2053
+  - 💦 19 - VLESS - Clean IP - 443
+  - 🇺🇸 US 1265 → tg@nicevpn123
+  - '[OpenRay] 🇺🇸 US-14155'
   - '[OpenRay] 🇬🇧 GB-216'
-  - '[OpenRay] 🇰🇷 KR-909'
-  - '[OpenRay] 🇰🇷 KR-911'
-  - '[OpenRay] 🇰🇷 KR-967'
+  - 🇬🇧GB-141.98.101.178-0221
+  - 中文官网：[卷王.cc]-美国 -0x-06
+  - '[OpenRay] 🇩🇪 DE-10070'
+  - 德国_042010337
+  - 🇬🇧GB-141.98.101.182-0216
+  - IT_Siziano_Oracle Corporation_Claude1
+  - 🇳🇱NL-109.201.152.181-0188
+  - 🇩🇪DE-8.209.74.72-0215
+  - 💦 32 - Trojan - Clean IP - 2053
+  - 🔴🇺🇸[🎬🎭🎞️📦]_github.com/Ruk1ng001_a88e970f
+  - 未知_042010615
+  - 波兰 - 华沙 - 19
+  - 🇺🇸 US 259 → tg@nicevpn123
+  - 💦 40 - VLESS - Clean IP - 2053
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_30cb0508
+  - 🇬🇧 GB 23 → tg@nicevpn123
+  - 波兰 - 华沙 - 7
+  - 💦 43 - VLESS - Clean IP - 2053
+  - '[OpenRay] 🇮🇹 IT-49'
+  - 💦 29 - Trojan - Clean IP - 2053
+  - '[OpenRay] 🇳🇱 NL-728'
+  - 波兰 - 华沙 - 6
+  - 波兰 - 华沙 - 5
+  - 🇬🇧GB-82.38.31.187-0177
+  - 🇳🇱NL-193.29.139.179-0200
+  - '[OpenRay] Dynamic-17148'
+  - 💦 29 - VLESS - Clean IP - 2053
+  - 波兰 - 华沙 - 17
+  - '[OpenRay] Dynamic-17157'
+  - 中文官网：[卷王.cc]-日本 -0x-01
+  - 🇯🇵JP-149.22.87.204-0206
+  - '[OpenRay] 🇯🇵 JP-1039'
+  - 🇳🇱 NL 9 → tg@nicevpn123
+  - '9'
+  - 🇬🇧GB-82.38.31.194-0168
+  - '[OpenRay] 🇬🇧 GB-673'
+  - 🇺🇸 US 462 → tg@nicevpn123
+  - 美国3
+  - 🔴🇺🇸[🎬🤖📺🔍]_github.com/Ruk1ng001_e55b3026
+  - 美国5
+  - 未知-3g5K
+  - 🇺🇸_US_美国_1-IDdF
+  - 🇬🇧GB-82.38.31.191-0193
+  - 🟢🇭🇰[🎬]_github.com/Ruk1ng001_69a38f0d
   - 未知_0420101539
-  - '[OpenRay] 🇰🇷 KR-919'
+  - 🇸🇬 SG 27 → tg@nicevpn123
+  - 🇺🇸_US_美国_3
+  - ⚪🏳️_github.com/Ruk1ng001_46786f0e
+  - 🔴🇯🇵[🎬🤖📺🔍]_github.com/Ruk1ng001_c5d553c9
+  - '[OpenRay] 🇰🇷 KR-909'
+  - 🇬🇧GB-51.132.227.118-0212
   - '[OpenRay] 🇰🇷 KR-1030'
-  - 🇸🇬 SG 39 → tg@nicevpn123
+  - '[OpenRay] 🇰🇷 KR-967'
+  - 未知-VlnK
+  - '[OpenRay] 🇰🇷 KR-911'
   - 日本2
-  - 香港_042010033
-  - HK香港(mibei77.com 米贝节点分享)_8-ewOg
-  - '[OpenRay] 🇰🇷 KR-920'
-  - HK香港(mibei77.com 米贝节点分享)_9-wPpf
-  - 香港_042010034
+  - 🇸🇬 SG 39 → tg@nicevpn123
+  - 🇬🇧GB-51.132.227.118-0210
   - '[OpenRay] 🇰🇷 KR-910'
-  - 新加坡_042010292
-  - 新加坡_042010290
+  - '[OpenRay] 🇰🇷 KR-919'
+  - '[OpenRay] 🇰🇷 KR-920'
+  - 🇬🇧GB-82.38.31.179-0202
   - 未知_0420101795
-  - 新加坡_042010297
 rules:
 - DOMAIN,app.adjust.com,DIRECT
 - DOMAIN,bdtj.tagtic.cn,DIRECT
